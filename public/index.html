@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Special Machine Talent Hub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  Replace YOUR_CLERK_PUBLISHABLE_KEY below with your real Clerk publishable key
+  (starts with pk_live_ or pk_test_) from the Clerk Dashboard -> API Keys.
+  This key is meant to be public/visible in the page source; it is not a secret.
+-->
+<script
+  async
+  crossorigin="anonymous"
+  data-clerk-publishable-key="YOUR_CLERK_PUBLISHABLE_KEY"
+  src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+  type="text/javascript"
+></script>
+<style>
+  :root{
+    --ink:#121214;
+    --paper:#F4F1EA;
+    --card:#1B1B1E;
+    --card-line:#33333a;
+    --chalk:#F5F3EE;
+    --muted:#9a978d;
+    --amber:#F2C94C;
+    --amber-dim:#8a7124;
+    --c-1stave:#FDAB3D;
+    --c-sg:#FF5AC4;
+    --c-pps:#66CCFF;
+    --c-mudge:#9CD326;
+    --danger:#e0526b;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--chalk);
+    font-family:'IBM Plex Sans',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--amber);color:var(--ink);}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .display{font-family:'Oswald',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;}
+
+  /* ---------- Slate header ---------- */
+  .slate{
+    background:repeating-linear-gradient(135deg, #1a1a1c 0 22px, #1f1f22 22px 44px);
+    border-bottom:4px solid var(--amber);
+    padding:22px 28px 18px;
+    position:sticky; top:0; z-index:40;
+  }
+  .slate-top{display:flex; align-items:center; justify-content:center; gap:24px; flex-wrap:wrap; text-align:center;}
+  .slate-title{
+    font-family:'Oswald',sans-serif; font-weight:700; text-transform:uppercase;
+    font-size:28px;
+    letter-spacing:0.5px;
+    color:var(--paper);
+    line-height:1;
+  }
+  .slate-sub{
+    margin-top:6px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:0.4px;
+  }
+  .company-chip-row{display:flex; gap:8px; flex-wrap:wrap;}
+  .company-chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    padding:4px 9px;
+    border-radius:20px;
+    color:#0c0c0c;
+    font-weight:600;
+    letter-spacing:0.3px;
+    white-space:nowrap;
+  }
+
+  /* ---------- Nav tabs ---------- */
+  .tabs{
+    display:flex; align-items:center; gap:2px; margin-top:18px; border-bottom:1px solid #2a2a2e; flex-wrap:wrap;
+  }
+  .tab-btn{
+    background:none; border:none; cursor:pointer;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:0.4px;
+    color:var(--muted);
+    padding:10px 16px;
+    border-bottom:2px solid transparent;
+    transition:color .15s, border-color .15s;
+  }
+  .tab-btn:hover{color:var(--chalk);}
+  .tab-btn.active{color:var(--amber); border-bottom-color:var(--amber);}
+  .admin-status{margin-left:auto; padding:6px 0;}
+  .admin-toggle-btn{
+    background:none; border:1px solid var(--card-line); border-radius:20px; cursor:pointer;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.3px;
+    color:var(--muted); padding:5px 12px;
+  }
+  .admin-toggle-btn:hover{border-color:var(--amber); color:var(--amber);}
+  .admin-toggle-btn.active{border-color:var(--c-mudge); color:var(--c-mudge);}
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:1240px; margin:0 auto; padding:24px 28px 80px;}
+  .toolbar{display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; margin-bottom:20px;}
+  .filter-field{display:flex; flex-direction:column; gap:6px;}
+  .filter-field label{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px;}
+  .search-field{flex:1; min-width:240px;}
+  .ms-btn{
+    background:var(--card); border:1px solid var(--card-line); color:var(--chalk);
+    font-family:'IBM Plex Sans',sans-serif; font-size:13.5px; padding:9px 30px 9px 12px;
+    border-radius:var(--radius); cursor:pointer; text-align:left; min-width:150px; position:relative;
+    white-space:nowrap;
+  }
+  .ms-btn:after{content:'▾'; position:absolute; right:10px; top:9px; color:var(--muted); font-size:11px;}
+  .ms-btn:hover{border-color:var(--amber);}
+  .ms-panel{
+    display:none; position:absolute; top:calc(100% + 4px); left:0; z-index:60;
+    background:var(--card); border:1px solid var(--card-line); border-radius:var(--radius);
+    min-width:240px; max-width:320px; max-height:280px; overflow-y:auto;
+    box-shadow:0 12px 28px rgba(0,0,0,.5); padding:6px;
+  }
+  .ms-panel.open{display:block;}
+  .ms-option{
+    display:flex; align-items:center; gap:8px; padding:6px 8px; font-size:13px;
+    border-radius:3px; cursor:pointer;
+  }
+  .ms-option:hover{background:#232326;}
+  .ms-option input{margin:0; accent-color:var(--amber); cursor:pointer;}
+  .ms-clear{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--amber);
+    padding:6px 8px; cursor:pointer; border-top:1px solid var(--card-line); margin-top:4px;
+  }
+  .checkbox-toggle{
+    display:flex; align-items:center; gap:8px; cursor:pointer;
+    background:var(--card); border:1px solid var(--card-line); border-radius:var(--radius);
+    padding:9px 12px; font-family:'IBM Plex Sans',sans-serif; font-size:13.5px; color:var(--chalk);
+    white-space:nowrap;
+  }
+  .checkbox-toggle:hover{border-color:var(--amber);}
+  .checkbox-toggle input{margin:0; accent-color:var(--amber); cursor:pointer;}
+  input, select, textarea{
+    background:var(--card);
+    border:1px solid var(--card-line);
+    color:var(--chalk);
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:13.5px;
+    padding:9px 12px;
+    border-radius:var(--radius);
+    outline:none;
+  }
+  input:focus, select:focus, textarea:focus{border-color:var(--amber);}
+  .search-input{flex:1; min-width:220px;}
+  select{cursor:pointer;}
+  .results-count{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--muted);
+    margin:-8px 0 18px;
+  }
+
+  /* ---------- Directory grid ---------- */
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(268px,1fr)); gap:16px;}
+  .rcard{
+    background:var(--card);
+    border:1px solid var(--card-line);
+    border-radius:4px;
+    padding:26px 18px 34px;
+    cursor:pointer;
+    position:relative;
+    overflow:visible;
+    height:100%;
+    transition:border-color .18s, transform .15s, box-shadow .18s;
+  }
+  .rcard-tab{
+    position:absolute; top:-1px; left:18px; width:46px; height:7px; border-radius:0 0 3px 3px;
+    background:var(--company-color, var(--card-line));
+  }
+  .rcard-clip{
+    position:absolute; top:-10px; right:16px; width:18px; height:24px;
+    border:2.5px solid #55554f; border-radius:3px; background:transparent; opacity:.55; pointer-events:none;
+  }
+  .rcard:hover{
+    border-color:var(--amber); transform:translateY(-3px);
+    box-shadow:0 12px 28px rgba(0,0,0,.4);
+  }
+  .stamp-stack{position:absolute; bottom:14px; right:14px; display:flex; flex-direction:column; align-items:flex-end; gap:5px; z-index:3;}
+  .stamp{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:10px; text-transform:uppercase;
+    letter-spacing:0.8px; padding:2px 9px; border-radius:2px; border:1.5px solid currentColor;
+    transform:rotate(-6deg); white-space:nowrap; background:rgba(20,20,20,.35);
+  }
+  .stamp-trusted{color:var(--c-mudge);}
+  .stamp-roster{color:var(--c-1stave);}
+  .card-actions{position:absolute; top:12px; right:10px; display:flex; gap:2px; z-index:2;}
+  .heart-btn{
+    background:none; border:none; cursor:pointer;
+    font-size:17px; color:var(--muted); line-height:1; padding:2px 4px;
+  }
+  .heart-btn:hover{color:var(--danger);}
+  .heart-btn.active{color:var(--danger);}
+  .book-btn{
+    background:none; border:none; cursor:pointer; font-size:19px; color:var(--muted);
+    line-height:1; padding:2px 4px; font-family:'IBM Plex Mono',monospace; font-weight:600;
+  }
+  .book-btn:hover{color:var(--amber);}
+  .prefill-banner{
+    background:rgba(242,201,76,.12); border:1px solid var(--amber-dim); color:var(--amber);
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; padding:10px 14px; border-radius:3px;
+    margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; gap:12px;
+  }
+  .prefill-banner button{
+    background:none; border:none; color:var(--amber); cursor:pointer; font-family:'IBM Plex Mono',monospace;
+    font-size:11px; text-decoration:underline;
+  }
+  .heart-btn-inline{
+    background:none; border:1px solid var(--card-line); border-radius:3px; cursor:pointer;
+    font-family:'IBM Plex Mono',monospace; font-size:12px; padding:9px 14px; color:var(--chalk);
+  }
+  .heart-btn-inline.active{color:var(--danger); border-color:var(--danger);}
+  .rcard-name{
+    font-size:17px; font-weight:700; line-height:1.3; padding-right:60px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .rcard-role{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--amber); margin-top:4px; letter-spacing:0.2px;
+    line-height:1.4; min-height:2.8em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .rcard-body{padding-top:14px; margin-top:12px; border-top:1px solid #262629;}
+  .rcard-row{font-size:12px; color:var(--muted); margin-bottom:3px; display:flex; gap:6px; flex-wrap:wrap;}
+  .card-link{color:#6db8f2; text-decoration:underline; text-underline-offset:2px; font-family:'IBM Plex Mono',monospace; font-size:12.5px; font-weight:700; word-break:break-all;}
+  .card-link:hover{color:#96cdff;}
+  .rcard-row b{color:var(--chalk); font-weight:500;}
+  .status-dot{width:7px;height:7px;border-radius:50%; display:inline-block; margin-right:6px; flex-shrink:0; margin-top:4px;}
+  .status-block{margin-bottom:10px;}
+  .status-block-head{display:flex; align-items:center; gap:6px; margin-bottom:4px;}
+  .status-block-head .status-dot{margin-top:0;}
+  .status-block-label{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:700; letter-spacing:0.5px;
+    color:var(--chalk);
+  }
+  .status-block-line{font-size:13px; color:var(--chalk); font-weight:600; line-height:1.5; padding-left:16px;}
+  .status-block-line.muted{color:var(--muted); font-weight:500; font-family:'IBM Plex Mono',monospace; font-size:11.5px;}
+  .badge{
+    display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:10px;
+    padding:2px 6px; border-radius:3px; letter-spacing:0.3px; font-weight:600;
+  }
+  .badge-high{background:rgba(224,82,107,.18); color:#f28ea0;}
+  .badge-medium{background:rgba(242,201,76,.18); color:var(--amber);}
+  .badge-low{background:rgba(156,211,38,.18); color:var(--c-mudge);}
+  .badge-free{background:rgba(255,255,255,.08); color:var(--muted);}
+
+  /* ---------- Board view ---------- */
+  .company-section{margin-bottom:40px;}
+  .company-header{
+    display:flex; align-items:baseline; gap:12px; margin-bottom:18px;
+    padding:4px 0 12px 16px; border-left:4px solid var(--company-color, var(--amber)); border-bottom:1px solid #232326;
+  }
+  .company-header h2{font-family:'Oswald',sans-serif; font-weight:700; text-transform:uppercase; font-size:21px; margin:0; letter-spacing:0.3px;}
+  .company-header span{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .project-block{margin-bottom:26px;}
+  .project-title{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Oswald',sans-serif; font-weight:700; text-transform:uppercase; font-size:15.5px; letter-spacing:0.4px; text-transform:uppercase;
+    color:#141210; background:var(--amber); padding:10px 16px; border-radius:4px; margin-bottom:12px;
+  }
+  .project-title:before{content:''; width:8px; height:8px; border-radius:50%; background:#141210; flex-shrink:0; opacity:.55;}
+  .board-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:10px;}
+  .board-card{
+    background:var(--card); border:1px solid var(--card-line); border-radius:7px;
+    padding:12px 13px; transition:border-color .15s, transform .12s, background .15s;
+  }
+  .board-card:hover{border-color:var(--amber); transform:translateY(-2px); background:#1f1f22;}
+  .board-card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:6px; margin-bottom:2px;}
+  .board-card-name{
+    font-family:'IBM Plex Sans',sans-serif; font-weight:700; font-size:13.5px; cursor:pointer; color:var(--chalk);
+    line-height:1.3;
+  }
+  .board-card-name:hover{color:var(--amber);}
+  .board-card-role{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--amber); margin-bottom:8px;}
+  .board-card-stats{display:flex; flex-direction:column; gap:6px;}
+  .board-stat-label{
+    font-family:'IBM Plex Mono',monospace; font-size:9px; text-transform:uppercase;
+    letter-spacing:0.5px; color:var(--muted); display:block;
+  }
+  .board-stat-value{font-family:'IBM Plex Sans',sans-serif; font-size:12px; color:var(--chalk); line-height:1.3; display:block;}
+  .name-link{color:var(--chalk); cursor:pointer; font-weight:600;}
+  .name-link:hover{color:var(--amber);}
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:100;
+    display:flex; align-items:flex-start; justify-content:center; padding:40px 20px; overflow-y:auto;
+  }
+  .modal{
+    background:var(--card); border:1px solid var(--card-line); max-width:640px; width:100%;
+    border-radius:var(--radius); padding:28px; position:relative;
+  }
+  .modal-close{
+    position:absolute; top:14px; right:16px; background:none; border:none; color:var(--muted);
+    font-size:20px; cursor:pointer; font-family:'IBM Plex Mono',monospace;
+  }
+  .modal-close:hover{color:var(--chalk);}
+  .modal h2{font-size:22px; margin:0 0 4px; font-weight:700;}
+  .modal .role-line{font-family:'IBM Plex Mono',monospace; color:var(--amber); font-size:13px; margin-bottom:16px;}
+  .modal-section{
+    margin-bottom:12px; background:#202023; border:1px solid #2c2c30; border-radius:8px;
+    padding:14px 16px;
+  }
+  .modal-section h4{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase;
+    letter-spacing:0.6px; color:var(--amber); margin:0 0 7px;
+  }
+  .modal-section p{margin:0; font-size:13.5px; line-height:1.6; white-space:pre-line; color:#dcd9d0;}
+  .link-row{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px;}
+  .link-row a{color:var(--amber); font-size:13px; text-decoration:none; font-family:'IBM Plex Mono',monospace;}
+  .link-row a:hover{text-decoration:underline;}
+  .modal-link{color:#6db8f2 !important; font-weight:700; text-decoration:underline; text-underline-offset:2px;}
+  .modal-link:hover{color:#96cdff !important;}
+  .chip-row{display:flex; gap:6px; flex-wrap:wrap;}
+  .chip{
+    background:#232326; border:1px solid var(--card-line); font-size:11.5px; padding:3px 9px;
+    border-radius:20px; color:var(--chalk);
+  }
+  .modal-actions{display:flex; gap:10px; margin-top:20px; border-top:1px solid #2a2a2e; padding-top:18px; flex-wrap:wrap;}
+
+  /* ---------- Project cards ---------- */
+  .project-grid-outer{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px;}
+  .project-card{
+    background:
+      repeating-linear-gradient(135deg, #1c1c1f 0 20px, #1f1f22 20px 40px);
+    border:1px solid var(--card-line); border-radius:10px;
+    padding:22px 20px 22px 24px;
+    cursor:pointer; position:relative; overflow:hidden; min-height:120px;
+    display:flex; justify-content:space-between; align-items:flex-start; gap:14px;
+    transition:border-color .18s, transform .15s, box-shadow .18s;
+  }
+  .project-card:before{
+    content:''; position:absolute; top:0; left:0; bottom:0; width:6px;
+    background:var(--project-accent, var(--card-line));
+  }
+  .project-card:hover{
+    border-color:var(--amber); transform:translateY(-4px);
+    box-shadow:0 14px 30px rgba(0,0,0,.45);
+  }
+  .project-card-main{min-width:0;}
+  .project-card-name{
+    font-family:'Oswald',sans-serif; font-weight:700; text-transform:uppercase; font-size:19px; line-height:1.3;
+    margin-bottom:10px; word-break:break-word;
+  }
+  .project-card-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted);
+    text-transform:uppercase; letter-spacing:0.5px; font-style:italic;
+  }
+  .project-card-dots{display:flex; gap:5px; margin-top:12px;}
+  .project-card-dot{width:10px; height:10px; border-radius:50%; flex-shrink:0;}
+  .project-card-count{text-align:right; flex-shrink:0;}
+  .project-card-count-num{font-family:'Oswald',sans-serif; font-weight:700; text-transform:uppercase; font-size:32px; line-height:1; color:var(--amber);}
+  .project-card-count-label{
+    font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--muted);
+    text-transform:uppercase; letter-spacing:0.6px; margin-top:2px;
+  }
+
+  /* ---------- Team Capacity ---------- */
+  .capacity-row{
+    background:var(--card); border:1px solid var(--card-line); border-radius:10px;
+    padding:18px 20px; margin-bottom:14px; transition:border-color .15s;
+  }
+  .capacity-row:hover{border-color:#3a3a40;}
+  .capacity-name{font-family:'IBM Plex Sans',sans-serif; font-weight:700; font-size:16px;}
+  .capacity-role{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); margin-top:3px; margin-bottom:16px;}
+  .capacity-bar-block{margin-bottom:14px;}
+  .capacity-bar-head{display:flex; align-items:baseline; gap:10px; margin-bottom:6px;}
+  .capacity-bar-label{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase;
+    letter-spacing:0.5px; color:var(--muted); flex:1;
+  }
+  .capacity-pct{font-family:'Oswald',sans-serif; font-weight:700; text-transform:uppercase; font-size:26px; line-height:1;}
+  .capacity-pct.green{color:var(--c-mudge);}
+  .capacity-pct.amber{color:var(--amber);}
+  .capacity-pct.red{color:#f28ea0;}
+  .capacity-badge{
+    font-family:'IBM Plex Mono',monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:0.4px;
+    padding:3px 9px; border-radius:20px; font-weight:700; display:inline-block;
+  }
+  .capacity-track{
+    height:24px; background:#232326; border-radius:6px; overflow:hidden; display:flex;
+    border:1px solid #2a2a2e;
+  }
+  .capacity-segment{
+    height:100%; display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:700; color:#141210;
+    white-space:nowrap; overflow:hidden; transition:opacity .15s;
+  }
+  .capacity-segment:hover{opacity:.85;}
+  .capacity-legend{display:flex; flex-wrap:wrap; gap:14px; margin-top:6px;}
+  .capacity-legend span{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted);}
+  .capacity-legend-dot{width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:6px; vertical-align:middle;}
+
+  /* ---------- Smart search / dispatch box ---------- */
+  .dispatch-box{
+    background:var(--card); border:1px solid var(--card-line); border-left:4px solid var(--amber);
+    border-radius:0 6px 6px 0; padding:20px 22px 22px; margin-bottom:22px; position:relative;
+  }
+  .dispatch-label{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.2px; color:var(--amber);
+    text-transform:uppercase; font-weight:600; margin-bottom:2px; display:flex; align-items:center; gap:8px;
+  }
+  .dispatch-label:before{content:''; width:6px; height:6px; border-radius:50%; background:var(--amber); flex-shrink:0;}
+  .dispatch-hint{font-family:'IBM Plex Sans',sans-serif; font-size:12.5px; color:var(--muted); margin:4px 0 16px; line-height:1.5;}
+  .dispatch-row{display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap;}
+  .dispatch-input{
+    flex:1; min-width:240px; background:#1a1a1d; border:1px solid var(--card-line); color:var(--chalk);
+    font-family:'IBM Plex Sans',sans-serif; font-size:14px; padding:11px 14px; border-radius:4px;
+    resize:none; outline:none; line-height:1.5; transition:border-color .15s, box-shadow .15s;
+  }
+  .dispatch-input:focus{border-color:var(--amber); box-shadow:0 0 0 3px rgba(242,201,76,.15);}
+  .dispatch-btn{
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; font-weight:700; letter-spacing:0.5px;
+    background:var(--amber); color:#141414; border:none; border-radius:4px; padding:0 20px;
+    height:44px; cursor:pointer; display:flex; align-items:center; gap:8px; text-transform:uppercase;
+    transition:background .15s, transform .1s; flex-shrink:0;
+  }
+  .dispatch-btn:hover{background:#f7d878;}
+  .dispatch-btn:active{transform:scale(.97);}
+  .dispatch-results-head{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); text-transform:uppercase;
+    letter-spacing:0.6px; margin:18px 0 12px; padding-top:14px; border-top:1px solid #262629;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .dispatch-results-body{max-height:560px; overflow-y:auto; padding-right:2px;}
+  .dispatch-clear{color:var(--amber); cursor:pointer; text-decoration:underline; text-underline-offset:2px;}
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.3px;
+    padding:9px 16px; border-radius:3px; border:1px solid var(--card-line);
+    background:transparent; color:var(--chalk); cursor:pointer; transition:all .15s;
+  }
+  .btn:hover{border-color:var(--amber); color:var(--amber);}
+  .btn-primary{background:var(--amber); color:#141414; border-color:var(--amber); font-weight:600;}
+  .btn-primary:hover{background:#f7d878; color:#141414;}
+  .btn-danger:hover{border-color:var(--danger); color:var(--danger);}
+
+  /* ---------- Forms ---------- */
+  .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .form-field{display:flex; flex-direction:column; gap:6px;}
+  .form-field.full{grid-column:1/-1;}
+  .form-field label{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.4px;}
+  .panel{background:var(--card); border:1px solid var(--card-line); border-radius:var(--radius); padding:24px; max-width:760px;}
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:var(--amber); color:#141414; padding:12px 22px; border-radius:3px;
+    font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600; z-index:200;
+    box-shadow:0 8px 24px rgba(0,0,0,.4);
+  }
+
+  /* ---------- Admin ---------- */
+  .req-card{background:var(--card); border:1px solid var(--card-line); border-radius:var(--radius); padding:16px; margin-bottom:12px;}
+  .req-top{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  .req-meta{font-size:12.5px; color:var(--muted); margin-top:6px; line-height:1.6;}
+  .empty-state{
+    text-align:center; padding:60px 20px; color:var(--muted);
+    font-family:'IBM Plex Mono',monospace; font-size:13px;
+  }
+  .section-title{font-family:'Oswald',sans-serif; font-weight:700; text-transform:uppercase; font-size:18px; margin:0 0 4px;}
+  .section-hint{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--muted); margin:0 0 18px;}
+
+  @media (max-width:900px){
+    .grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));}
+    .board-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));}
+    .project-grid-outer{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));}
+  }
+  @media (max-width:640px){
+    .form-grid{grid-template-columns:1fr;}
+    .slate{padding:14px 14px 10px;}
+    .slate-title{font-size:22px;}
+    .wrap{padding:16px 12px 60px;}
+    .grid, .board-grid, .project-grid-outer{grid-template-columns:1fr;}
+    .toolbar{flex-direction:column; align-items:stretch;}
+    .filter-field, .search-field{width:100%; min-width:0;}
+    .ms-btn, .checkbox-toggle, .filter-field select{width:100%;}
+    .tabs{gap:0; overflow-x:auto; -webkit-overflow-scrolling:touch; flex-wrap:nowrap; padding-bottom:2px;}
+    .tab-btn{padding:10px 12px; font-size:11.5px; flex-shrink:0;}
+    .admin-status{margin-left:0; flex-shrink:0;}
+    .modal-overlay{padding:0;}
+    .modal{max-width:100%; width:100%; min-height:100vh; border-radius:0; padding:20px 18px;}
+    .capacity-legend{flex-direction:column; gap:6px;}
+    .capacity-bar-head{flex-wrap:wrap;}
+    .req-top{flex-direction:column;}
+    .company-chip-row{justify-content:center;}
+    .dispatch-row{flex-direction:column;}
+    .dispatch-btn{width:100%; justify-content:center;}
+    .dispatch-box{padding:16px 16px 18px;}
+  }
+  @media (max-width:400px){
+    .rcard{padding:22px 14px 30px;}
+    .rcard-name{padding-right:44px; font-size:15.5px;}
+  }
+</style>
+</head>
+<body>
+<div id="signin-gate" style="min-height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:18px;">
+  <div style="font-family:'Archivo Black',sans-serif; font-size:26px; color:#F5F3EE;">SPECIAL MACHINE TALENT HUB</div>
+  <div id="clerk-signin-container"></div>
+</div>
+<div id="root" style="display:none;"></div>
+
+<script>
+(function(){
+  var COMPANY_COLORS = {
+    "1stAve": "var(--c-1stave)",
+    "SG": "var(--c-sg)",
+    "Studio PPS": "var(--c-pps)",
+    "Mudge": "var(--c-mudge)"
+  };
+  var COMPANY_FULLNAME = {
+    "1stAve": "1stAveMachine",
+    "SG": "SpecialGuest",
+    "Studio PPS": "Studio PPS",
+    "Mudge": "Mudge"
+  };
+
+  var DATA = [];
+  var freelancerDataUpdatedAt = null;
+  var clerkToken = null; // set after Clerk sign-in; sent as Bearer token to our functions
+
+  var state = {
+    tab: 'directory',
+    search: '',
+    filterCompany: '',
+    filterRole: [],
+    filterIndustry: [],
+    bookedOnly: false,
+    holdOnly: false,
+    rosterOnly: false,
+    modalPerson: null,
+    modalEmployee: null,
+    prefillPerson: null,
+    prefillType: null,
+    requests: [],
+    favorites: [],
+    internalEmployees: [],
+    manualAssignments: [],
+    isAdmin: false,
+    userEmail: '',
+    adminCompanies: [],
+    toast: null,
+    projectSearch: '',
+    projectDetail: null,
+    projectPeopleFilter: 'all',
+    projectFilterCompany: [],
+    capacityFilterCompany: ['SpecialGuest'],
+    projectAddMode: null,
+    editingEmployeeId: null,
+    profile: {name:'', email:''}
+  };
+
+  function el(tag, attrs, children){
+    var e = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function(k){
+      if(k === 'class') e.className = attrs[k];
+      else if(k === 'html') e.innerHTML = attrs[k];
+      else if(k.indexOf('on') === 0) e.addEventListener(k.slice(2), attrs[k]);
+      else e.setAttribute(k, attrs[k]);
+    });
+    (children||[]).forEach(function(c){
+      if(c === null || c === undefined) return;
+      if(typeof c === 'string') e.appendChild(document.createTextNode(c));
+      else e.appendChild(c);
+    });
+    return e;
+  }
+
+  function allSkills(r){
+    return [r.creativeSkills, r.accountSkills, r.strategySkills, r.productionSkills]
+      .filter(Boolean).join(', ');
+  }
+
+  function skillList(r){
+    var parts = [];
+    [r.creativeSkills, r.accountSkills, r.strategySkills, r.productionSkills].forEach(function(v){
+      if(typeof v === 'string' && v) v.split(',').forEach(function(s){ s = s.trim(); if(s) parts.push(s); });
+    });
+    return parts;
+  }
+
+  function searchBlob(r){
+    return [r.name, r.role, r.company, r.currentProject, r.currentHold, r.industries,
+      allSkills(r), r.aiSummary, r.work, r.location, r.notes].filter(Boolean).join(' | ').toLowerCase();
+  }
+
+  function uniqueValues(field, splitComma){
+    var set = {};
+    DATA.forEach(function(r){
+      var v = r[field];
+      if(!v || typeof v !== 'string') return;
+      if(splitComma){
+        v.split(',').forEach(function(s){ s = s.trim(); if(s) set[s] = true; });
+      } else {
+        set[v] = true;
+      }
+    });
+    return Object.keys(set).sort();
+  }
+
+  function allocationBadge(level){
+    if(!level) return el('span', {class:'badge badge-free'}, ['Open']);
+    var cls = 'badge-' + level.toLowerCase();
+    return el('span', {class:'badge ' + cls}, [level]);
+  }
+
+  function initials(name){
+    return name.split(' ').map(function(p){return p[0];}).join('').slice(0,2).toUpperCase();
+  }
+
+  var MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function formatDate(d){
+    if(!d) return d;
+    var parts = d.trim().split('-');
+    if(parts.length !== 3) return d;
+    var y = parseInt(parts[0],10), m = parseInt(parts[1],10) - 1, day = parseInt(parts[2],10);
+    if(isNaN(y) || isNaN(m) || isNaN(day) || !MONTH_NAMES[m]) return d;
+    return MONTH_NAMES[m] + ' ' + day + ', ' + y;
+  }
+  function formatDateRange(str){
+    if(!str) return str;
+    var parts = str.split(' - ');
+    if(parts.length === 2) return formatDate(parts[0]) + ' – ' + formatDate(parts[1]);
+    return formatDate(str);
+  }
+
+  /* ---------------- persistence (backed by /.netlify/functions/data) ---------------- */
+  function apiGet(key){
+    return fetch('/.netlify/functions/data?key=' + encodeURIComponent(key), {
+      headers: { 'Authorization': 'Bearer ' + clerkToken }
+    }).then(function(res){ return res.ok ? res.json() : { value: null }; })
+      .then(function(json){ return json.value; })
+      .catch(function(){ return null; });
+  }
+  function apiSet(key, value){
+    return fetch('/.netlify/functions/data', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + clerkToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: key, value: value })
+    }).catch(function(){ /* best-effort; consider surfacing a toast on repeated failure */ });
+  }
+
+  function loadRequests(cb){
+    apiGet('requests').then(function(val){ cb(val || []); });
+  }
+  function saveRequests(arr, cb){
+    apiSet('requests', arr).then(function(){ cb && cb(); });
+  }
+
+  function loadFavorites(cb){
+    apiGet('favorites').then(function(val){ cb(val || []); });
+  }
+  function saveFavorites(arr, cb){
+    apiSet('favorites', arr).then(function(){ cb && cb(); });
+  }
+  function toggleFavorite(id){
+    var idx = state.favorites.indexOf(id);
+    if(idx === -1) state.favorites.push(id); else state.favorites.splice(idx, 1);
+    saveFavorites(state.favorites, function(){ render(); });
+  }
+
+  function loadInternalEmployees(cb){
+    apiGet('internal_employees').then(function(val){ cb(val || []); });
+  }
+  function saveInternalEmployees(arr, cb){
+    apiSet('internal_employees', arr).then(function(){ cb && cb(); });
+  }
+
+  function loadManualAssignments(cb){
+    apiGet('manual_assignments').then(function(val){ cb(val || []); });
+  }
+  function saveManualAssignments(arr, cb){
+    apiSet('manual_assignments', arr).then(function(){ cb && cb(); });
+  }
+
+  function loadProfile(cb){
+    apiGet('profile').then(function(val){ cb(val || {name:'', email:''}); });
+  }
+  function saveProfile(profile, cb){
+    apiSet('profile', profile).then(function(){ cb && cb(); });
+  }
+
+  function showToast(msg){
+    state.toast = msg;
+    render();
+    setTimeout(function(){ state.toast = null; render(); }, 3200);
+  }
+
+  /* ---------------- filtering ---------------- */
+  function matchesAny(fieldValue, selected){
+    if(!selected.length) return true;
+    if(!fieldValue) return false;
+    var parts = fieldValue.split(',').map(function(s){ return s.trim(); });
+    return selected.some(function(sel){ return parts.indexOf(sel) !== -1; });
+  }
+
+  function filteredData(){
+    var q = state.search.trim().toLowerCase();
+    var hasActiveFilter = !!(q || state.filterCompany || state.filterRole.length || state.filterIndustry.length || state.bookedOnly || state.holdOnly || state.rosterOnly);
+    var list = DATA.filter(function(r){
+      if(q && searchBlob(r).indexOf(q) === -1) return false;
+      if(state.filterCompany && r.company !== state.filterCompany) return false;
+      if(!matchesAny(r.role, state.filterRole)) return false;
+      if(!matchesAny(r.industries, state.filterIndustry)) return false;
+      if(state.rosterOnly && !r.directorRoster) return false;
+      if(state.bookedOnly || state.holdOnly){
+        var passesBooked = state.bookedOnly && isBooked(r);
+        var passesHold = state.holdOnly && isHoldOnly(r);
+        if(!passesBooked && !passesHold) return false;
+      }
+      return true;
+    });
+    if(hasActiveFilter){
+      list = list.slice().sort(function(a, b){ return (b.trusted?1:0) - (a.trusted?1:0); });
+    }
+    return list;
+  }
+
+  /* ---------------- render: header ---------------- */
+  function renderHeader(){
+    var slate = el('div', {class:'slate'}, [
+      el('div', {class:'slate-top'}, [
+        el('div', {}, [
+          el('div', {class:'slate-title'}, ['SPECIAL MACHINE TALENT HUB']),
+          el('div', {class:'slate-sub'}, ['CROSS-COMPANY RESOURCING'])
+        ])
+      ]),
+      el('div', {class:'tabs'}, [
+        tabBtn('directory','Directory'),
+        tabBtn('projects','Projects'),
+        tabBtn('reuse','Reuse Opportunities'),
+        tabBtn('capacity','Team Capacity'),
+        tabBtn('favorites','My Favorites'),
+        tabBtn('request','Request Talent'),
+        state.isAdmin ? tabBtn('admin','Admin' + (state.requests.filter(function(r){return !r.read;}).length ? ' \u25CF' : '')) : null,
+        el('div', {class:'admin-status'}, [
+          el('span', {class:'mono', style:'color:var(--muted); font-size:11px; margin-right:10px;'}, [
+            state.userEmail + (state.isAdmin ? ' · Admin (' + state.adminCompanies.join(', ') + ')' : '')
+          ]),
+          el('button', {class:'admin-toggle-btn', onclick:function(){ window.Clerk.signOut(); }}, ['Sign Out'])
+        ])
+      ])
+    ]);
+    return slate;
+  }
+
+  function tabBtn(key, label){
+    return el('button', {
+      class: 'tab-btn' + (state.tab === key ? ' active' : ''),
+      onclick: function(){ state.tab = key; render(); }
+    }, [label.toUpperCase()]);
+  }
+
+  /* ---------------- render: directory ---------------- */
+  function renderDirectory(){
+    var wrap = el('div', {});
+
+    var searchDebounce = null;
+    var searchField = el('div', {class:'filter-field search-field'}, [
+      el('label', {}, ['Search']),
+      el('input', {class:'search-input', placeholder:'Name, role, skill, industry, client work…', value: state.search,
+        oninput: function(e){
+          state.search = e.target.value;
+          clearTimeout(searchDebounce);
+          searchDebounce = setTimeout(renderDirectoryList, 220);
+        }
+      })
+    ]);
+
+    var companyField = el('div', {class:'filter-field'}, [
+      el('label', {}, ['Company']),
+      selectField(state.filterCompany, ['','1stAve','SG','Studio PPS','Mudge'], function(v){ state.filterCompany=v; renderDirectoryList(); }, 'Any')
+    ]);
+
+    var bookedCheckbox = el('input', {type:'checkbox'});
+    bookedCheckbox.checked = state.bookedOnly;
+    bookedCheckbox.addEventListener('change', function(e){
+      state.bookedOnly = e.target.checked;
+      renderDirectoryList();
+    });
+    var bookedOnlyField = el('div', {class:'filter-field'}, [
+      el('label', {}, ['\u00A0']),
+      el('label', {class:'checkbox-toggle'}, [bookedCheckbox, el('span', {}, ['Show Booked Only'])])
+    ]);
+
+    var holdCheckbox = el('input', {type:'checkbox'});
+    holdCheckbox.checked = state.holdOnly;
+    holdCheckbox.addEventListener('change', function(e){
+      state.holdOnly = e.target.checked;
+      renderDirectoryList();
+    });
+    var holdOnlyField = el('div', {class:'filter-field'}, [
+      el('label', {}, ['\u00A0']),
+      el('label', {class:'checkbox-toggle'}, [holdCheckbox, el('span', {}, ['On Hold'])])
+    ]);
+
+    var rosterCheckbox = el('input', {type:'checkbox'});
+    rosterCheckbox.checked = state.rosterOnly;
+    rosterCheckbox.addEventListener('change', function(e){
+      state.rosterOnly = e.target.checked;
+      renderDirectoryList();
+    });
+    var rosterOnlyField = el('div', {class:'filter-field'}, [
+      el('label', {}, ['\u00A0']),
+      el('label', {class:'checkbox-toggle'}, [rosterCheckbox, el('span', {}, ['Director Roster'])])
+    ]);
+
+    var clearAllField = el('div', {class:'filter-field'}, [
+      el('label', {}, ['\u00A0']),
+      el('button', {class:'btn', type:'button', onclick: function(){
+        state.search = '';
+        state.filterCompany = '';
+        state.filterRole = [];
+        state.filterIndustry = [];
+        state.bookedOnly = false;
+        state.holdOnly = false;
+        state.rosterOnly = false;
+        render();
+      }}, ['Clear All'])
+    ]);
+
+    var toolbar = el('div', {class:'toolbar'}, [searchField, companyField, bookedOnlyField, holdOnlyField, rosterOnlyField, clearAllField]);
+    wrap.appendChild(toolbar);
+    wrap.appendChild(renderSmartSearch());
+    wrap.appendChild(el('div', {id:'results-count', class:'results-count'}, []));
+    wrap.appendChild(el('div', {id:'directory-grid', class:'grid'}, []));
+    setTimeout(renderDirectoryList, 0);
+    return wrap;
+  }
+
+  var STOPWORDS = ['a','an','the','and','or','for','with','who','that','has','have','need','needs','looking','someone','anyone','based','in','on','at','to','of','is','are','done','work','worked','experience'];
+  function scoreCandidate(r, terms){
+    var blob = searchBlob(r);
+    var score = 0;
+    terms.forEach(function(t){
+      if(!t) return;
+      if((r.role||'').toLowerCase().indexOf(t) !== -1) score += 4;
+      if(skillList(r).join(' ').toLowerCase().indexOf(t) !== -1) score += 3;
+      if((r.aiSummary||'').toLowerCase().indexOf(t) !== -1) score += 2;
+      if((r.location||'').toLowerCase().indexOf(t) !== -1) score += 2;
+      if(blob.indexOf(t) !== -1) score += 1;
+    });
+    return score;
+  }
+  function renderSmartSearch(){
+    var box = el('div', {class:'dispatch-box'});
+    box.appendChild(el('div', {class:'dispatch-label'}, ['Talent dispatch — ask for what you need']));
+    box.appendChild(el('div', {class:'dispatch-hint'}, [
+      'Try "bilingual DP based in LA with automotive experience." Basic keyword matching for now — ask Claude to wire this up to real AI matching against your monday.com roster when you\u2019re ready for that.'
+    ]));
+    var input = el('textarea', {class:'dispatch-input', rows:'1', placeholder:'Who are you looking for?'});
+    var resultsEl = el('div', {}, []);
+
+    function runSearch(){
+      var q = input.value.trim().toLowerCase();
+      resultsEl.innerHTML = '';
+      if(!q){ showToast('Type what you are looking for first.'); return; }
+      var terms = q.split(/[^a-z0-9]+/).filter(function(t){ return t.length > 2 && STOPWORDS.indexOf(t) === -1; });
+      var ranked = DATA.map(function(r){ return {r:r, score:scoreCandidate(r, terms)}; })
+        .filter(function(x){ return x.score > 0; })
+        .sort(function(a,b){ return b.score - a.score; })
+        .slice(0, 12);
+      var head = el('div', {class:'dispatch-results-head'}, [
+        el('span', {}, [ranked.length + ' MATCH' + (ranked.length===1?'':'ES')]),
+        el('span', {class:'dispatch-clear', onclick:function(){ input.value=''; resultsEl.innerHTML=''; }}, ['Clear'])
+      ]);
+      resultsEl.appendChild(head);
+      if(!ranked.length){
+        resultsEl.appendChild(el('div', {class:'empty-state'}, ['No close matches. Try fewer or broader terms.']));
+        return;
+      }
+      resultsEl.appendChild(el('div', {class:'dispatch-results-body'}, [
+        el('div', {class:'grid'}, ranked.map(function(x){ return personCard(x.r); }))
+      ]));
+    }
+
+    input.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); runSearch(); }
+    });
+    input.addEventListener('input', function(){
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+    });
+
+    var goBtn = el('button', {class:'dispatch-btn', onclick:runSearch}, ['Search', '\u2192']);
+    box.appendChild(el('div', {class:'dispatch-row'}, [input, goBtn]));
+    box.appendChild(resultsEl);
+    return box;
+  }
+
+  /* ---------------- render: reuse opportunities ---------------- */
+  function renderReuseOpportunities(){
+    var wrap = el('div', {});
+    wrap.appendChild(el('div', {class:'section-title'}, ['Reuse Opportunities']));
+    wrap.appendChild(el('div', {class:'section-hint'}, [
+      'People already booked with room left in their schedule, and people on hold at one company who could be confirmed elsewhere first. Use this to spot split-booking opportunities across ' +
+      Object.values(COMPANY_FULLNAME).join(', ') + '.'
+    ]));
+
+    var partial = DATA.filter(function(r){
+      return isBooked(r) && r.allocation && r.allocation !== 'High';
+    }).sort(function(a, b){
+      var order = {Low:0, Medium:1};
+      return (order[a.allocation]!==undefined?order[a.allocation]:2) - (order[b.allocation]!==undefined?order[b.allocation]:2);
+    });
+
+    var holdOnly = DATA.filter(function(r){ return isHoldOnly(r); });
+
+    wrap.appendChild(el('div', {style:'font-weight:700; margin:22px 0 4px;'}, ['Partial capacity (' + partial.length + ')']));
+    wrap.appendChild(el('div', {class:'section-hint', style:'margin:0 0 14px;'}, [
+      'Currently booked, but not at full allocation — good candidates for a second project.'
+    ]));
+    if(!partial.length){
+      wrap.appendChild(el('div', {class:'empty-state'}, ['No one is currently marked below full allocation. This fills in as the Project Allocation column gets used in monday.com.']));
+    } else {
+      var partialGrid = el('div', {class:'board-grid'}, partial.map(function(r){
+        var stats = [
+          miniStat('Company', COMPANY_FULLNAME[r.company] || r.company || '\u2014'),
+          miniStat('Project', r.currentProject || '\u2014'),
+          miniStat('Allocation', allocationBadge(r.allocation)),
+          state.isAdmin ? el('button', {class:'btn', style:'margin-top:6px;', onclick:function(){ state.prefillPerson=r; state.prefillType='booking'; state.tab='request'; render(); }}, ['Suggest for another project']) : null
+        ];
+        return boardCard(r, stats);
+      }));
+      wrap.appendChild(partialGrid);
+    }
+
+    wrap.appendChild(el('div', {style:'font-weight:700; margin:26px 0 4px;'}, ['On hold, not yet confirmed (' + holdOnly.length + ')']));
+    wrap.appendChild(el('div', {class:'section-hint', style:'margin:0 0 14px;'}, [
+      'On hold somewhere, but nothing is booked yet — worth checking before another company locks them in.'
+    ]));
+    if(!holdOnly.length){
+      wrap.appendChild(el('div', {class:'empty-state'}, ['No one is currently on hold without a confirmed booking.']));
+    } else {
+      var holdGrid = el('div', {class:'board-grid'}, holdOnly.map(function(r){
+        var stats = [
+          miniStat('Hold for', r.currentHold || '\u2014'),
+          miniStat('Hold dates', r.holdDates ? formatDateRange(r.holdDates) : '\u2014'),
+          el('button', {class:'btn', style:'margin-top:6px;', onclick:function(){ state.prefillPerson=r; state.prefillType='booking'; state.tab='request'; render(); }}, ['Request to book'])
+        ];
+        return boardCard(r, stats);
+      }));
+      wrap.appendChild(holdGrid);
+    }
+    return wrap;
+  }
+
+  function toggleInArray(arr, val, checked){
+    var idx = arr.indexOf(val);
+    if(checked && idx === -1) arr.push(val);
+    else if(!checked && idx !== -1) arr.splice(idx, 1);
+  }
+
+  function multiSelectField(label, options, getSelected, onToggle){
+    var container = el('div', {class:'filter-field', style:'position:relative;'});
+    var btn = el('button', {class:'ms-btn', type:'button'}, [label]);
+    var panel = el('div', {class:'ms-panel'}, []);
+
+    function refreshBtnLabel(){
+      var n = getSelected().length;
+      btn.textContent = n ? (label + ' (' + n + ')') : 'Any';
+    }
+
+    options.forEach(function(opt){
+      var checkbox = el('input', {type:'checkbox', onchange:function(e){
+        onToggle(opt, e.target.checked);
+        refreshBtnLabel();
+      }});
+      if(getSelected().indexOf(opt) !== -1) checkbox.checked = true;
+      var row = el('label', {class:'ms-option'}, [checkbox, el('span', {}, [opt])]);
+      panel.appendChild(row);
+    });
+    if(options.length){
+      panel.appendChild(el('div', {class:'ms-clear', onclick:function(){
+        var sel = getSelected();
+        sel.slice().forEach(function(v){ onToggle(v, false); });
+        panel.querySelectorAll('input[type=checkbox]').forEach(function(cb){ cb.checked = false; });
+        refreshBtnLabel();
+      }}, ['Clear']));
+    }
+
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      document.querySelectorAll('.ms-panel.open').forEach(function(p){ if(p !== panel) p.classList.remove('open'); });
+      panel.classList.toggle('open');
+    });
+
+    refreshBtnLabel();
+    container.appendChild(el('label', {}, [label]));
+    container.appendChild(btn);
+    container.appendChild(panel);
+    return container;
+  }
+
+  document.addEventListener('click', function(){
+    document.querySelectorAll('.ms-panel.open').forEach(function(p){ p.classList.remove('open'); });
+  });
+
+  function selectField(value, options, onChange, placeholderLabel){
+    var s = el('select', {onchange:function(e){ onChange(e.target.value); }});
+    options.forEach(function(o){
+      var label = o === '' ? placeholderLabel : o;
+      var opt = el('option', {value:o}, [label]);
+      if(o === value) opt.selected = true;
+      s.appendChild(opt);
+    });
+    return s;
+  }
+
+  function renderDirectoryList(){
+    var grid = document.getElementById('directory-grid');
+    var countEl = document.getElementById('results-count');
+    if(!grid) return;
+    var list = filteredData();
+    countEl.textContent = list.length + ' MATCH' + (list.length===1?'':'ES');
+    grid.innerHTML = '';
+    if(list.length === 0){
+      grid.appendChild(el('div', {class:'empty-state'}, ['No freelancers match those filters. Try widening your search.']));
+      return;
+    }
+    list.forEach(function(r){
+      grid.appendChild(personCard(r));
+    });
+  }
+
+  function isBooked(r){
+    return !!(r.company && (r.currentProject || r.bookedDates));
+  }
+  function isHoldOnly(r){
+    return !isBooked(r) && !!r.currentHold;
+  }
+
+  function personCard(r){
+    var booked = isBooked(r);
+    var hasStatus = !!(booked || r.currentHold);
+    var statusColor = booked ? 'var(--c-mudge)' : 'var(--muted)';
+    var statusLabel = booked
+      ? 'Booked — ' + (COMPANY_FULLNAME[r.company] || r.company) + ' · ' + (r.currentProject || 'Project TBD') + (r.bookedDates ? ' · ' + formatDateRange(r.bookedDates) : '')
+      : (r.currentHold ? 'On hold — ' + r.currentHold + (r.holdDates ? ' · ' + formatDateRange(r.holdDates) : '') : '');
+    var isFav = state.favorites.indexOf(r.id) !== -1;
+    var portfolioUrl = r.portfolio || null;
+    var stamps = [];
+    if(r.trusted) stamps.push(el('span', {class:'stamp stamp-trusted'}, ['Trusted']));
+    if(r.directorRoster) stamps.push(el('span', {class:'stamp stamp-roster'}, ['Director Roster']));
+    var card = el('div', {class:'rcard', style:'--company-color:'+(COMPANY_COLORS[r.company]||'var(--card-line)')+';', onclick:function(){ state.modalPerson = r; render(); }}, [
+      el('div', {class:'rcard-tab'}, []),
+      el('div', {class:'rcard-clip'}, []),
+      stamps.length ? el('div', {class:'stamp-stack'}, stamps) : null,
+      el('div', {class:'card-actions'}, [
+        el('button', {class:'heart-btn' + (isFav?' active':''), title: isFav ? 'Remove from My Favorites' : 'Add to My Favorites',
+          onclick:function(e){ e.stopPropagation(); toggleFavorite(r.id); }
+        }, [isFav ? '♥' : '♡']),
+        el('button', {class:'book-btn', title:'Request to book ' + r.name,
+          onclick:function(e){ e.stopPropagation(); state.prefillPerson = r; state.prefillType = 'booking'; state.tab = 'request'; render(); }
+        }, ['+'])
+      ]),
+      el('div', {class:'rcard-name'}, [r.name]),
+      el('div', {class:'rcard-role'}, [r.role || 'Role not set']),
+      portfolioUrl ? el('div', {class:'rcard-row'}, [el('a', {href:portfolioUrl, target:'_blank', class:'card-link', onclick:function(e){e.stopPropagation();}}, ['Portfolio'])]) : null,
+      r.linkedin ? el('div', {class:'rcard-row'}, [el('a', {href:r.linkedin, target:'_blank', class:'card-link', onclick:function(e){e.stopPropagation();}}, ['Linkedin'])]) : null,
+      el('div', {class:'rcard-body'}, [
+        hasStatus ? el('div', {class:'rcard-row'}, [
+          el('span', {class:'status-dot', style:'background:'+statusColor}, []),
+          el('span', {style:'color:var(--chalk); font-weight:600;'}, [statusLabel])
+        ]) : null,
+        r.location ? el('div', {class:'rcard-row'}, [el('b',{},['Based:']), ' ' + r.location]) : null,
+        r.email ? el('div', {class:'rcard-row'}, [el('b',{},['Email:']), ' ', el('a', {href:'mailto:'+r.email, class:'card-link', onclick:function(e){e.stopPropagation();}}, [r.email])]) : null,
+        (state.isAdmin && r.rate) ? el('div', {class:'rcard-row'}, [el('b',{},['Rate:']), ' ' + r.rate + (r.ratePer ? '/'+r.ratePer : '')]) : null,
+        r.allocation ? el('div', {class:'rcard-row', style:'margin-top:8px; align-items:center;'}, [el('b',{},['Allocation:']), ' ', allocationBadge(r.allocation)]) : null
+      ])
+    ]);
+    return card;
+  }
+
+  /* ---------------- render: frequent freelancers ---------------- */
+  function renderFavorites(){
+    var wrap = el('div', {});
+    wrap.appendChild(el('div', {class:'section-title'}, ['My Favorites']));
+    wrap.appendChild(el('div', {class:'section-hint'}, [
+      'Freelancers you\u2019ve favorited — the people you typically book. Click the heart on any freelancer to add or remove them here.'
+    ]));
+    var favs = DATA.filter(function(r){ return state.favorites.indexOf(r.id) !== -1; });
+    if(!favs.length){
+      wrap.appendChild(el('div', {class:'empty-state'}, [
+        'No favorites yet. Click the ♡ on any freelancer in the Directory or Booking Board to add them here.'
+      ]));
+      return wrap;
+    }
+    var grid = el('div', {class:'grid'}, favs.map(personCard));
+    wrap.appendChild(grid);
+    return wrap;
+  }
+
+  /* ---------------- render: board ---------------- */
+  function heartButtonEl(r){
+    var isFav = state.favorites.indexOf(r.id) !== -1;
+    return el('button', {class:'heart-btn' + (isFav?' active':''), style:'position:static; flex-shrink:0;', title: isFav ? 'Remove from My Favorites' : 'Add to My Favorites',
+      onclick:function(e){ e.stopPropagation(); toggleFavorite(r.id); }
+    }, [isFav ? '♥' : '♡']);
+  }
+
+  function miniStat(label, value){
+    return el('div', {}, [
+      el('span', {class:'board-stat-label'}, [label]),
+      el('span', {class:'board-stat-value'}, [value])
+    ]);
+  }
+
+  function boardCard(r, stats){
+    return el('div', {class:'board-card'}, [
+      el('div', {class:'board-card-top'}, [
+        el('div', {class:'board-card-name', onclick:function(){ state.modalPerson=r; render(); }}, [r.name]),
+        heartButtonEl(r)
+      ]),
+      el('div', {class:'board-card-role'}, [r.role || 'Role not set']),
+      el('div', {class:'board-card-stats'}, stats)
+    ]);
+  }
+
+  /* ---------------- render: projects ---------------- */
+  function buildProjectMap(peopleFilter){
+    var map = {};
+    if(peopleFilter !== 'fulltime'){
+      DATA.forEach(function(r){
+        if(!isBooked(r) || !r.currentProject) return;
+        var p = r.currentProject;
+        map[p] = map[p] || {};
+        map[p][r.company] = map[p][r.company] || {freelancers:[], employees:[]};
+        map[p][r.company].freelancers.push(r);
+      });
+      state.manualAssignments.forEach(function(a){
+        var r = DATA.find(function(x){ return x.id === a.freelancerId; });
+        if(!r || !a.project || !a.company) return;
+        map[a.project] = map[a.project] || {};
+        map[a.project][a.company] = map[a.project][a.company] || {freelancers:[], employees:[]};
+        var already = map[a.project][a.company].freelancers.some(function(f){ return f.id === r.id; });
+        if(!already) map[a.project][a.company].freelancers.push(r);
+      });
+    }
+    if(peopleFilter !== 'freelance'){
+      state.internalEmployees.forEach(function(emp){
+        (emp.allocations || []).forEach(function(a){
+          if(!a.project) return;
+          var p = a.project;
+          map[p] = map[p] || {};
+          map[p][emp.company] = map[p][emp.company] || {freelancers:[], employees:[]};
+          map[p][emp.company].employees.push({employee:emp, allocation:a});
+        });
+      });
+    }
+    return map;
+  }
+
+  function employeeCard(emp){
+    var children = [
+      el('div', {class:'rcard-name'}, [emp.name]),
+      el('div', {class:'rcard-role'}, [emp.role || 'Role not set']),
+      el('div', {class:'rcard-row'}, [el('b',{},['Company:']), ' ' + (COMPANY_FULLNAME[emp.company] || emp.company)])
+    ];
+    (emp.allocations || []).forEach(function(a){
+      children.push(el('div', {class:'rcard-row'}, [
+        el('b',{},[a.project + ':']), ' ' + (a.percentage != null ? a.percentage + '%' : '—') + (a.dates ? ' · ' + a.dates : '')
+      ]));
+    });
+    return el('div', {class:'rcard', onclick:function(){ state.modalEmployee = emp; render(); }}, children);
+  }
+
+  function renderProjects(){
+    var wrap = el('div', {});
+    if(state.projectDetail){
+      wrap.appendChild(renderProjectDetail(state.projectDetail));
+      return wrap;
+    }
+
+    var searchField = el('div', {class:'filter-field search-field'}, [
+      el('label', {}, ['Search People']),
+      el('input', {class:'search-input', placeholder:'Search any freelancer or employee by name…', value: state.projectSearch,
+        oninput:function(e){ state.projectSearch = e.target.value; renderProjectSearchResults(); }
+      })
+    ]);
+    var companyFilterField = multiSelectField('Company',
+      ['1stAve','SG','Studio PPS','Mudge'].map(function(k){ return COMPANY_FULLNAME[k] || k; }),
+      function(){ return state.projectFilterCompany; },
+      function(val, checked){ toggleInArray(state.projectFilterCompany, val, checked); renderProjectGrid(); }
+    );
+    wrap.appendChild(el('div', {class:'toolbar'}, [searchField, companyFilterField]));
+    wrap.appendChild(el('div', {id:'project-search-results'}, []));
+    wrap.appendChild(el('div', {class:'section-title', style:'margin-top:10px;'}, ['Projects']));
+    wrap.appendChild(el('div', {class:'section-hint'}, ['Click a project to see every company, freelancer, and full-time employee working on it. Filter by company to narrow the list.']));
+    wrap.appendChild(el('div', {id:'project-grid'}, []));
+    setTimeout(function(){ renderProjectSearchResults(); renderProjectGrid(); }, 0);
+    return wrap;
+  }
+
+  function renderProjectSearchResults(){
+    var container = document.getElementById('project-search-results');
+    if(!container) return;
+    container.innerHTML = '';
+    var q = state.projectSearch.trim().toLowerCase();
+    if(!q) return;
+    var freelancerMatches = DATA.filter(function(r){ return r.name.toLowerCase().indexOf(q) !== -1; }).slice(0,8);
+    var employeeMatches = state.internalEmployees.filter(function(e){ return e.name.toLowerCase().indexOf(q) !== -1; }).slice(0,8);
+    if(!freelancerMatches.length && !employeeMatches.length){
+      container.appendChild(el('div', {class:'empty-state'}, ['No one matches "' + state.projectSearch + '".']));
+      return;
+    }
+    var grid = el('div', {class:'grid', style:'margin-bottom:28px;'}, []);
+    freelancerMatches.forEach(function(r){ grid.appendChild(personCard(r)); });
+    employeeMatches.forEach(function(e){ grid.appendChild(employeeCard(e)); });
+    container.appendChild(grid);
+  }
+
+  function renderProjectGrid(){
+    var container = document.getElementById('project-grid');
+    if(!container) return;
+    container.innerHTML = '';
+    var map = buildProjectMap('all');
+    var selectedCompanies = state.projectFilterCompany;
+    var showAllCompanies = !selectedCompanies.length;
+
+    var COMPANY_PRIORITY = ['1stAve', 'SG', 'Studio PPS', 'Mudge'];
+    function primaryCompanyRank(p){
+      var companies = Object.keys(map[p]);
+      var best = COMPANY_PRIORITY.length;
+      companies.forEach(function(co){
+        var idx = COMPANY_PRIORITY.indexOf(co);
+        if(idx !== -1 && idx < best) best = idx;
+      });
+      return best;
+    }
+
+    var names = Object.keys(map).filter(function(p){
+      var companies = Object.keys(map[p]);
+      if(showAllCompanies) return true;
+      return companies.some(function(co){ return selectedCompanies.indexOf(COMPANY_FULLNAME[co] || co) !== -1; });
+    }).sort(function(a, b){
+      var aMulti = Object.keys(map[a]).length > 1;
+      var bMulti = Object.keys(map[b]).length > 1;
+      if(aMulti !== bMulti) return aMulti ? -1 : 1;
+      var rankDiff = primaryCompanyRank(a) - primaryCompanyRank(b);
+      if(rankDiff !== 0) return rankDiff;
+      return a.localeCompare(b);
+    });
+
+    if(!names.length){
+      container.appendChild(el('div', {class:'empty-state'}, ['No projects match this filter.']));
+      return;
+    }
+    var grid = el('div', {class:'project-grid-outer'}, []);
+    names.forEach(function(p){
+      var companies = Object.keys(map[p]);
+      var isCrossCompany = companies.length > 1;
+      var card = el('div', {class:'project-card', onclick:function(){ state.projectDetail = p; state.projectPeopleFilter = 'all'; render(); }}, [
+        isCrossCompany ? el('div', {class:'cross-company-tag'}, ['Cross-Company']) : null,
+        el('div', {class:'project-card-name'}, [p]),
+        el('div', {class:'project-card-chips'},
+          companies.map(function(co){
+            return el('span', {class:'company-pill', style:'background:'+(COMPANY_COLORS[co]||'var(--muted)')}, [COMPANY_FULLNAME[co] || co]);
+          })
+        )
+      ]);
+      grid.appendChild(card);
+    });
+    container.appendChild(grid);
+  }
+
+  function renderProjectDetail(projectName){
+    var wrap = el('div', {});
+    wrap.appendChild(el('button', {class:'btn', style:'margin-bottom:18px;', onclick:function(){ state.projectDetail = null; render(); }}, ['← Back to Projects']));
+    wrap.appendChild(el('div', {class:'section-title'}, [projectName]));
+
+    function filterBtn(key, label){
+      return el('button', {class:'btn' + (state.projectPeopleFilter===key?' btn-primary':''), onclick:function(){
+        state.projectPeopleFilter = key; render();
+      }}, [label]);
+    }
+    wrap.appendChild(el('div', {class:'toolbar'}, [
+      filterBtn('all', 'All'),
+      filterBtn('freelance', 'Freelancers Only'),
+      filterBtn('fulltime', 'Full-Time Only')
+    ]));
+
+    if(state.isAdmin){
+      var addBtnRow = el('div', {style:'display:flex; gap:10px; margin-bottom:18px;'}, [
+        el('button', {class:'btn' + (state.projectAddMode==='freelancer'?' btn-primary':''), onclick:function(){
+          state.projectAddMode = state.projectAddMode === 'freelancer' ? null : 'freelancer'; render();
+        }}, ['+ Add Freelancer']),
+        el('button', {class:'btn' + (state.projectAddMode==='employee'?' btn-primary':''), onclick:function(){
+          state.projectAddMode = state.projectAddMode === 'employee' ? null : 'employee'; render();
+        }}, ['+ Add Full-Time Employee'])
+      ]);
+      wrap.appendChild(addBtnRow);
+
+      if(state.projectAddMode === 'freelancer'){
+        wrap.appendChild(renderAddFreelancerToProjectForm(projectName));
+      } else if(state.projectAddMode === 'employee'){
+        wrap.appendChild(renderAddEmployeeToProjectForm(projectName));
+      }
+    }
+
+    var map = buildProjectMap(state.projectPeopleFilter);
+    var companies = map[projectName] ? Object.keys(map[projectName]) : [];
+    if(!companies.length){
+      wrap.appendChild(el('div', {class:'empty-state'}, ['No one matches this filter for this project.']));
+      return wrap;
+    }
+
+    companies.forEach(function(co){
+      var bucket = map[projectName][co];
+      var section = el('div', {class:'company-section'}, [
+        el('div', {class:'company-header', style:'--company-color:'+(COMPANY_COLORS[co]||'var(--muted)')}, [
+          el('h2', {}, [COMPANY_FULLNAME[co] || co]),
+          el('span', {}, [(bucket.freelancers.length + bucket.employees.length) + ' people'])
+        ])
+      ]);
+      var cards = [];
+      bucket.freelancers.forEach(function(r){
+        cards.push(boardCard(r, [
+          r.allocation ? miniStat('Allocation', allocationBadge(r.allocation)) : null,
+          miniStat('Dates Booked', formatDateRange(r.bookedDates) || '—'),
+          miniStat('Type', 'Freelancer')
+        ]));
+      });
+      bucket.employees.forEach(function(pair){
+        var emp = pair.employee, a = pair.allocation;
+        cards.push(el('div', {class:'board-card'}, [
+          el('div', {class:'board-card-top'}, [
+            el('div', {class:'board-card-name', onclick:function(){ state.modalEmployee = emp; render(); }}, [emp.name])
+          ]),
+          el('div', {class:'board-card-role'}, [emp.role || 'Role not set']),
+          el('div', {class:'board-card-stats'}, [
+            miniStat('Capacity', a.percentage != null ? a.percentage + '%' : '—'),
+            miniStat('Dates', a.dates || '—'),
+            miniStat('Type', 'Full-Time')
+          ])
+        ]));
+      });
+      section.appendChild(el('div', {class:'board-grid'}, cards));
+      wrap.appendChild(section);
+    });
+
+    return wrap;
+  }
+
+  function renderAddFreelancerToProjectForm(projectName){
+    var panel = el('div', {class:'panel', style:'margin-bottom:20px;'});
+    panel.appendChild(el('div', {style:'font-weight:700; margin-bottom:12px;'}, ['Add Freelancer to ' + projectName]));
+
+    var picked = null;
+    var searchBox = el('input', {placeholder:'Type a freelancer name…', style:'width:100%; margin-bottom:8px;'});
+    var resultsBox = el('div', {style:'max-height:160px; overflow-y:auto; margin-bottom:12px;'});
+    searchBox.addEventListener('input', function(e){
+      var q = e.target.value.trim().toLowerCase();
+      resultsBox.innerHTML = '';
+      if(q.length < 2) return;
+      DATA.filter(function(r){ return r.name.toLowerCase().indexOf(q) !== -1; }).slice(0,8).forEach(function(r){
+        resultsBox.appendChild(el('div', {
+          style:'padding:6px 8px; cursor:pointer; border-radius:3px;',
+          onmouseover:function(e){e.target.style.background='#232326';},
+          onmouseout:function(e){e.target.style.background='transparent';},
+          onclick:function(){
+            picked = r;
+            searchBox.value = r.name + (r.role ? ' — ' + r.role : '');
+            resultsBox.innerHTML = '';
+            companySelect.querySelector('select').value = r.company || '1stAve';
+          }
+        }, [r.name + (r.role ? ' — ' + r.role : '')]));
+      });
+    });
+    panel.appendChild(searchBox);
+    panel.appendChild(resultsBox);
+
+    var companySelect = selectFormField('Company', ['1stAve','SG','Studio PPS','Mudge'], function(){}, '1stAve');
+    var datesInput = el('input', {placeholder:'Dates on this project (optional)', style:'width:100%;'});
+    panel.appendChild(el('div', {class:'form-grid'}, [
+      companySelect,
+      el('div', {class:'form-field'}, [el('label',{},['Dates']), datesInput])
+    ]));
+
+    panel.appendChild(el('div', {style:'display:flex; gap:10px; margin-top:14px;'}, [
+      el('button', {class:'btn btn-primary', onclick:function(){
+        if(!picked){ showToast('Pick a freelancer first.'); return; }
+        var company = companySelect.querySelector('select').value;
+        state.manualAssignments.push({
+          id: 'assign_' + Date.now(), freelancerId: picked.id, freelancerName: picked.name,
+          project: projectName, company: company, dates: datesInput.value.trim()
+        });
+        saveManualAssignments(state.manualAssignments, function(){
+          showToast('Added ' + picked.name + ' to ' + projectName + '.');
+          state.projectAddMode = null;
+          render();
+        });
+      }}, ['Add to Project']),
+      el('button', {class:'btn', onclick:function(){ state.projectAddMode = null; render(); }}, ['Cancel'])
+    ]));
+
+    return panel;
+  }
+
+  function renderAddEmployeeToProjectForm(projectName){
+    var panel = el('div', {class:'panel', style:'margin-bottom:20px;'});
+    panel.appendChild(el('div', {style:'font-weight:700; margin-bottom:12px;'}, ['Add Full-Time Employee to ' + projectName]));
+
+    var nameInput = el('input', {type:'text'});
+    var roleInput = el('input', {type:'text'});
+    var companySelect = selectFormField('Company', ['1stAve','SG','Studio PPS','Mudge'], function(){}, '1stAve');
+    var pctInput = el('input', {type:'number', placeholder:'% capacity', min:'0', max:'100'});
+    var datesInput = el('input', {type:'text', placeholder:'Dates (e.g. Aug 1 – Sep 30)'});
+
+    panel.appendChild(el('div', {class:'form-grid'}, [
+      el('div', {class:'form-field'}, [el('label',{},['Name']), nameInput]),
+      el('div', {class:'form-field'}, [el('label',{},['Role']), roleInput]),
+      companySelect,
+      el('div', {class:'form-field'}, [el('label',{},['Capacity %']), pctInput]),
+      el('div', {class:'form-field'}, [el('label',{},['Dates']), datesInput])
+    ]));
+
+    panel.appendChild(el('div', {style:'display:flex; gap:10px; margin-top:14px;'}, [
+      el('button', {class:'btn btn-primary', onclick:function(){
+        var name = nameInput.value.trim();
+        if(!name){ showToast('Please add a name.'); return; }
+        var company = companySelect.querySelector('select').value;
+        state.internalEmployees.push({
+          id: 'emp_' + Date.now(), name: name, role: roleInput.value.trim(), company: company,
+          allocations: [{ project: projectName, percentage: pctInput.value !== '' ? Number(pctInput.value) : null, dates: datesInput.value.trim() }]
+        });
+        saveInternalEmployees(state.internalEmployees, function(){
+          showToast('Added ' + name + ' to ' + projectName + '.');
+          state.projectAddMode = null;
+          render();
+        });
+      }}, ['Add to Project']),
+      el('button', {class:'btn', onclick:function(){ state.projectAddMode = null; render(); }}, ['Cancel'])
+    ]));
+
+    return panel;
+  }
+
+  /* ---------------- render: team capacity ---------------- */
+  var CAPACITY_PALETTE = ['#F2C94C','#66CCFF','#FF5AC4','#9CD326','#FDAB3D','#B983FF','#4FD8C4','#FF9E9E','#7AD1FF','#D8D8D8'];
+  function hashStr(s){
+    var h = 0;
+    for(var i = 0; i < s.length; i++){ h = (h * 31 + s.charCodeAt(i)) | 0; }
+    return Math.abs(h);
+  }
+  function getProjectColor(name){
+    return CAPACITY_PALETTE[hashStr(name || '') % CAPACITY_PALETTE.length];
+  }
+
+  function renderCapacity(){
+    var wrap = el('div', {});
+    wrap.appendChild(el('div', {class:'section-title'}, ['Team Capacity']));
+    wrap.appendChild(el('div', {class:'section-hint'}, [
+      'How full-time employees are allocated across projects. A full bar means someone is at capacity — that\u2019s the cue to bring in freelance support instead of stretching the team thinner. Data comes from the Internal Team roster in Admin.'
+    ]));
+    var companyFilterField = multiSelectField('Company',
+      ['1stAve','SG','Studio PPS','Mudge'].map(function(k){ return COMPANY_FULLNAME[k] || k; }),
+      function(){ return state.capacityFilterCompany; },
+      function(val, checked){ toggleInArray(state.capacityFilterCompany, val, checked); renderCapacityList(); }
+    );
+    wrap.appendChild(el('div', {class:'toolbar'}, [companyFilterField]));
+    wrap.appendChild(el('div', {id:'capacity-list'}, []));
+    setTimeout(renderCapacityList, 0);
+    return wrap;
+  }
+
+  function renderCapacityList(){
+    var container = document.getElementById('capacity-list');
+    if(!container) return;
+    container.innerHTML = '';
+    var selected = state.capacityFilterCompany;
+    var showAll = !selected.length;
+    var emps = state.internalEmployees.filter(function(e){
+      return showAll || selected.indexOf(COMPANY_FULLNAME[e.company] || e.company) !== -1;
+    });
+    if(!emps.length){
+      container.appendChild(el('div', {class:'empty-state'}, [
+        'No internal employees on file for this company yet. Add them from the Admin tab\u2019s Internal Team section.'
+      ]));
+      return;
+    }
+    emps = emps.slice().sort(function(a, b){
+      var totalA = (a.allocations || []).reduce(function(s, x){ return s + (x.percentage || 0); }, 0);
+      var totalB = (b.allocations || []).reduce(function(s, x){ return s + (x.percentage || 0); }, 0);
+      return totalB - totalA;
+    });
+    emps.forEach(function(emp){ container.appendChild(capacityRow(emp)); });
+  }
+
+  function capacityRow(emp){
+    var allocations = (emp.allocations || []).filter(function(a){ return a.project; });
+    var total = allocations.reduce(function(s, a){ return s + (a.percentage || 0); }, 0);
+    var statusClass = total >= 100 ? 'red' : (total >= 80 ? 'amber' : 'green');
+    var statusLabel = total >= 100 ? 'At Capacity' : (total >= 80 ? 'Near Capacity' : 'Has Room');
+    var badgeStyle = statusClass === 'red' ? 'background:rgba(224,82,107,.18); color:#f28ea0;'
+      : statusClass === 'amber' ? 'background:rgba(242,201,76,.18); color:var(--amber);'
+      : 'background:rgba(156,211,38,.18); color:var(--c-mudge);';
+
+    var track = el('div', {class:'capacity-track'}, []);
+    allocations.forEach(function(a){
+      var pct = Math.max(0, a.percentage || 0);
+      if(pct <= 0) return;
+      var color = getProjectColor(a.project);
+      track.appendChild(el('div', {
+        class:'capacity-segment',
+        style:'width:' + pct + '%; background:' + color + ';',
+        title: a.project + ' — ' + pct + '%'
+      }, [pct >= 10 ? (pct + '%') : '']));
+    });
+    var remaining = Math.max(0, 100 - total);
+    if(remaining > 0){
+      track.appendChild(el('div', {class:'capacity-segment', style:'width:' + remaining + '%; background:transparent;'}, []));
+    }
+
+    var legend = el('div', {class:'capacity-legend'}, allocations.map(function(a){
+      return el('span', {}, [
+        el('span', {class:'capacity-legend-dot', style:'background:' + getProjectColor(a.project) + ';'}, []),
+        a.project + ' — ' + (a.percentage != null ? a.percentage + '%' : '—') + (a.dates ? ' · ' + a.dates : '')
+      ]);
+    }));
+
+    return el('div', {class:'capacity-row'}, [
+      el('div', {class:'capacity-row-head'}, [
+        el('div', {}, [
+          el('div', {class:'capacity-name'}, [emp.name]),
+          el('div', {class:'capacity-role'}, [(emp.role || 'Role not set') + ' · ' + (COMPANY_FULLNAME[emp.company] || emp.company)])
+        ]),
+        el('div', {style:'text-align:right;'}, [
+          el('div', {class:'capacity-pct ' + statusClass}, [total + '%']),
+          el('div', {class:'capacity-badge', style:badgeStyle}, [statusLabel])
+        ])
+      ]),
+      track,
+      legend
+    ]);
+  }
+
+  function renderEmployeeModal(){
+    if(!state.modalEmployee) return null;
+    var emp = state.modalEmployee;
+    var overlay = el('div', {class:'modal-overlay', onclick:function(e){ if(e.target === overlay){ state.modalEmployee = null; render(); } }});
+    var modal = el('div', {class:'modal'}, [
+      el('button', {class:'modal-close', onclick:function(){ state.modalEmployee = null; render(); }}, ['✕']),
+      el('h2', {}, [emp.name]),
+      el('div', {class:'role-line'}, [emp.role || 'Role not set']),
+      el('div', {class:'modal-section'}, [
+        el('h4', {}, ['Company']),
+        el('p', {}, [COMPANY_FULLNAME[emp.company] || emp.company])
+      ]),
+      el('div', {class:'modal-section'}, [el('h4', {}, ['Project Allocations'])].concat(
+        (emp.allocations && emp.allocations.length)
+          ? emp.allocations.map(function(a){
+              return el('p', {style:'margin-bottom:6px;'}, [a.project + ' — ' + (a.percentage != null ? a.percentage + '%' : '—') + (a.dates ? ' · ' + a.dates : '')]);
+            })
+          : [el('p', {}, ['No project allocations on file.'])]
+      ))
+    ]);
+    overlay.appendChild(modal);
+    return overlay;
+  }
+
+  /* ---------------- render: request form ---------------- */
+  function renderRequestForm(){
+    var prefill = state.prefillPerson;
+    var prefillType = state.prefillType;
+    state.prefillPerson = null;
+    state.prefillType = null;
+
+    var vals = {
+      requestor: state.profile.name || '',
+      requestorEmail: state.profile.email || '',
+      company: (prefill && prefill.company) || '1stAve',
+      project: (prefill && prefill.currentProject) || '',
+      roleNeeded: (prefill && prefill.role) || '',
+      dates: '',
+      wantsBooking: prefillType ? prefillType === 'booking' : true,
+      wantsAvailability: prefillType === 'availability',
+      wantsRate: prefillType === 'rate',
+      notes: '',
+      freelancerId: prefill ? prefill.id : null,
+      freelancerName: prefill ? prefill.name : null
+    };
+
+    function personPhrase(){
+      return prefill ? (' for ' + prefill.name + (prefill.role ? ' — ' + prefill.role : '')) : '';
+    }
+    function selectedNouns(){
+      var n = [];
+      if(vals.wantsBooking) n.push('Booking');
+      if(vals.wantsAvailability) n.push('Availability');
+      if(vals.wantsRate) n.push('Rate');
+      return n;
+    }
+    function defaultNotes(){
+      if(!prefill) return '';
+      var bits = [];
+      if(vals.wantsBooking) bits.push('booking');
+      if(vals.wantsAvailability) bits.push('checking availability');
+      if(vals.wantsRate) bits.push('their rate');
+      var action = bits.length ? bits.join(' + ') : 'a request';
+      return (action.charAt(0).toUpperCase()+action.slice(1)) + ' for ' + prefill.name + (prefill.email ? ' (' + prefill.email + ')' : ' — no email on file');
+    }
+    vals.notes = defaultNotes();
+
+    function currentTitle(){
+      var n = selectedNouns();
+      if(!n.length) return 'Request Talent';
+      if(n.length === 1 && n[0] === 'Booking') return 'Request to Book';
+      if(n.length === 1) return 'Request ' + n[0];
+      return 'Request ' + n.join(' + ');
+    }
+    function currentBannerText(){
+      var n = selectedNouns();
+      if(!n.length) return 'Choose what you need' + personPhrase();
+      var phrases = n.map(function(x){
+        if(x === 'Booking') return 'requesting to book';
+        if(x === 'Availability') return 'checking availability';
+        return 'asking for their rate';
+      });
+      var text = phrases.join(' + ');
+      return text.charAt(0).toUpperCase() + text.slice(1) + personPhrase();
+    }
+    function refreshHeader(){
+      titleEl.textContent = currentTitle();
+      if(bannerTextEl) bannerTextEl.textContent = currentBannerText();
+      var n = selectedNouns();
+      submitBtn.textContent = n.length ? ('Submit ' + n.join(' + ') + ' Request') : 'Submit Request';
+      datesLabelEl.textContent = (vals.wantsAvailability && !vals.wantsBooking) ? 'Dates you need availability for' : 'Dates needed';
+      if(!notesTouched){ notesEl.value = defaultNotes(); vals.notes = notesEl.value; }
+    }
+
+    var titleEl = el('div', {class:'section-title'}, [currentTitle()]);
+    var bannerTextEl = prefill ? el('span', {}, [currentBannerText()]) : null;
+
+    var bookCheckbox = el('input', {type:'checkbox', onchange:function(e){ vals.wantsBooking = e.target.checked; refreshHeader(); }});
+    bookCheckbox.checked = !!vals.wantsBooking;
+    var availCheckbox = el('input', {type:'checkbox', onchange:function(e){ vals.wantsAvailability = e.target.checked; refreshHeader(); }});
+    availCheckbox.checked = !!vals.wantsAvailability;
+    var rateCheckbox = el('input', {type:'checkbox', onchange:function(e){ vals.wantsRate = e.target.checked; refreshHeader(); }});
+    rateCheckbox.checked = !!vals.wantsRate;
+
+    var typeChooser = el('div', {class:'form-field full', style:'flex-direction:row; gap:24px; align-items:center; flex-wrap:wrap;'}, [
+      el('label', {class:'ms-option', style:'padding:0;'}, [bookCheckbox, el('span', {}, ['Request to Book'])]),
+      el('label', {class:'ms-option', style:'padding:0;'}, [availCheckbox, el('span', {}, ['Request Availability'])]),
+      el('label', {class:'ms-option', style:'padding:0;'}, [rateCheckbox, el('span', {}, ['Request Rate'])])
+    ]);
+
+    var notesTouched = false;
+    var datesLabelEl = el('label', {}, [(vals.wantsAvailability && !vals.wantsBooking) ? 'Dates you need availability for' : 'Dates needed']);
+    var notesEl = el('textarea', {rows:'3', oninput:function(e){ notesTouched = true; vals.notes = e.target.value; }});
+    notesEl.value = vals.notes;
+
+    var submitBtn = el('button', {class:'btn btn-primary', onclick:function(){
+      if(!vals.requestor || !vals.roleNeeded){ showToast('Please add your name and the role needed.'); return; }
+      if(!vals.wantsBooking && !vals.wantsAvailability && !vals.wantsRate){ showToast('Please choose at least one: Request to Book, Request Availability, or Request Rate.'); return; }
+      var requestTypes = [];
+      if(vals.wantsBooking) requestTypes.push('booking');
+      if(vals.wantsAvailability) requestTypes.push('availability');
+      if(vals.wantsRate) requestTypes.push('rate');
+      var record = {
+        id: Date.now(), submittedAt: new Date().toISOString(), status:'New', read:false,
+        requestor: vals.requestor, requestorEmail: vals.requestorEmail, company: vals.company,
+        project: vals.project, roleNeeded: vals.roleNeeded, dates: vals.dates, notes: vals.notes,
+        freelancerId: vals.freelancerId, freelancerName: vals.freelancerName,
+        requestTypes: requestTypes
+      };
+      var reqs = state.requests.slice();
+      reqs.unshift(record);
+      state.requests = reqs;
+      state.profile = {name: vals.requestor, email: vals.requestorEmail};
+      saveRequests(reqs, function(){
+        saveProfile(state.profile);
+        // Real server-side email alert — fails silently if RESEND_API_KEY isn't
+        // set yet in Netlify's environment variables; the request itself is
+        // already saved above regardless of whether this succeeds.
+        fetch('/.netlify/functions/send-request-alert', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + clerkToken, 'Content-Type': 'application/json' },
+          body: JSON.stringify(record)
+        }).catch(function(){ /* best-effort */ });
+        showToast(selectedNouns().join(' + ') + ' request submitted — thanks!');
+        state.tab='directory'; render();
+      });
+    }}, [currentTitle() === 'Request Talent' ? 'Submit Request' : 'Submit ' + selectedNouns().join(' + ') + ' Request']);
+
+    var panel = el('div', {class:'panel'}, [
+      titleEl,
+      prefill
+        ? el('div', {class:'prefill-banner'}, [
+            bannerTextEl,
+            el('button', {onclick:function(){ state.tab='request'; render(); }}, ['Clear, start over'])
+          ])
+        : el('div', {class:'section-hint'}, ['Submit a booking, availability, or rate request — it lands in the Admin queue for review.']),
+      el('div', {class:'form-grid'}, [
+        typeChooser,
+        formField('Your name', 'text', function(v){vals.requestor=v;}, '', vals.requestor),
+        formField('Your email', 'email', function(v){vals.requestorEmail=v;}, '', vals.requestorEmail),
+        formField('Freelancer Name', 'text', function(v){vals.freelancerName=v;}, 'Who are you requesting?', vals.freelancerName),
+        selectFormField('Company', ['1stAve','SG','Studio PPS','Mudge'], function(v){vals.company=v;}, vals.company),
+        formField('Project name', 'text', function(v){vals.project=v;}, '', vals.project),
+        formField('Role needed', 'text', function(v){vals.roleNeeded=v;}, '', vals.roleNeeded),
+        el('div', {class:'form-field'}, [datesLabelEl, el('input', {type:'text', placeholder:'e.g. Aug 4 – Aug 18', oninput:function(e){vals.dates=e.target.value;}})]),
+        el('div', {class:'form-field full'}, [el('label',{},['Notes (skills, specific freelancer in mind, etc.)']), notesEl])
+      ]),
+      el('div', {style:'margin-top:18px;'}, [submitBtn])
+    ]);
+    return panel;
+  }
+
+  function formField(label, type, onChange, placeholder, initialValue){
+    var input = el('input', {type:type, placeholder:placeholder||'', value: initialValue || '', oninput:function(e){onChange(e.target.value);}});
+    return el('div', {class:'form-field'}, [el('label',{},[label]), input]);
+  }
+  function textareaField(label, onChange, initialValue){
+    var t = el('textarea', {rows:'3', oninput:function(e){onChange(e.target.value);}});
+    if(initialValue) t.value = initialValue;
+    return el('div', {class:'form-field full'}, [el('label',{},[label]), t]);
+  }
+  function selectFormField(label, options, onChange, selectedValue){
+    var s = el('select', {onchange:function(e){onChange(e.target.value);}});
+    options.forEach(function(o){
+      var opt = el('option',{value:o},[o]);
+      if(o === selectedValue) opt.selected = true;
+      s.appendChild(opt);
+    });
+    return el('div', {class:'form-field'}, [el('label',{},[label]), s]);
+  }
+
+  /* ---------------- render: admin ---------------- */
+  function emailTemplate(kind, person, extra){
+    extra = extra || {};
+    var project = extra.project || person.currentProject || '[project name]';
+    var dates = extra.dates || formatDateRange(person.bookedDates) || '[dates]';
+    var company = extra.company || person.company || '[company]';
+    var rate = person.rate ? (person.rate + (person.ratePer ? '/' + person.ratePer : '')) : '[rate]';
+    if(kind === 'booking'){
+      return {
+        subject: 'Booking Confirmation — ' + project,
+        body: 'Hi ' + person.name.split(' ')[0] + ',\n\n' +
+          'We would like to officially book you for ' + project + ' with ' + company + '.\n\n' +
+          'Dates: ' + dates + '\nRate: ' + rate + '\n\n' +
+          'Let us know if these details work on your end and we will get everything scheduled.\n\nThanks so much,\n'
+      };
+    }
+    return {
+      subject: 'Hold Request — ' + project,
+      body: 'Hi ' + person.name.split(' ')[0] + ',\n\n' +
+        'We would like to place a hold on your schedule for ' + project + ' with ' + company + '.\n\n' +
+        'Hold dates: ' + dates + '\n\n' +
+        'Nothing is confirmed yet — we will follow up as soon as we know more. Please let us know if these dates work as a hold.\n\nThanks,\n'
+    };
+  }
+
+  function mailtoLink(person, tmpl){
+    if(!person.email) return null;
+    return 'mailto:' + encodeURIComponent(person.email) +
+      '?subject=' + encodeURIComponent(tmpl.subject) +
+      '&body=' + encodeURIComponent(tmpl.body);
+  }
+
+  function renderAdmin(){
+    var unreadIds = {};
+    state.requests.forEach(function(r){ if(!r.read) unreadIds[r.id] = true; });
+    if(Object.keys(unreadIds).length){
+      state.requests.forEach(function(r){ r.read = true; });
+      saveRequests(state.requests);
+    }
+    var wrap = el('div', {});
+    wrap.appendChild(el('div', {class:'section-title'}, ['Admin']));
+    wrap.appendChild(el('div', {class:'section-hint'}, [
+      'Review booking requests and send booking / hold emails. Only people listed in the ADMIN_EMAILS_* environment variables can sign in with admin access.'
+    ]));
+
+    // Quick send
+    var quickWrap = el('div', {class:'panel', style:'margin-bottom:28px;'});
+    quickWrap.appendChild(el('div', {style:'font-weight:700; margin-bottom:10px;'}, ['Quick Send']));
+    var picked = null;
+    var searchBox = el('input', {placeholder:'Type a freelancer name…', style:'width:100%; margin-bottom:10px;'});
+    var resultsBox = el('div', {style:'max-height:160px; overflow-y:auto; margin-bottom:12px;'});
+    searchBox.addEventListener('input', function(e){
+      var q = e.target.value.trim().toLowerCase();
+      resultsBox.innerHTML = '';
+      if(q.length < 2) return;
+      DATA.filter(function(r){ return r.name.toLowerCase().indexOf(q) !== -1; }).slice(0,8).forEach(function(r){
+        resultsBox.appendChild(el('div', {
+          style:'padding:6px 8px; cursor:pointer; border-radius:3px;',
+          onmouseover:function(e){e.target.style.background='#232326';},
+          onmouseout:function(e){e.target.style.background='transparent';},
+          onclick:function(){
+            picked = r;
+            searchBox.value = r.name + (r.email ? '' : '  (no email on file)');
+            resultsBox.innerHTML = '';
+          }
+        }, [r.name + ' — ' + (r.role||'') + (r.email ? '' : '  ⚠ no email')]));
+      });
+    });
+    quickWrap.appendChild(searchBox);
+    quickWrap.appendChild(resultsBox);
+
+    var qProject = el('input', {placeholder:'Project name', style:'margin-bottom:8px; width:100%;'});
+    var qDates = el('input', {placeholder:'Dates', style:'margin-bottom:8px; width:100%;'});
+    var qCompany = selectField('', ['','1stAve','SG','Studio PPS','Mudge'], function(){}, 'Company');
+    quickWrap.appendChild(el('div', {class:'form-grid', style:'margin-bottom:10px;'}, [qProject, qDates, qCompany]));
+    var qBtnRow = el('div', {style:'display:flex; gap:10px;'}, [
+      el('button', {class:'btn btn-primary', onclick:function(){ sendQuick('booking'); }}, ['Draft Booking Email']),
+      el('button', {class:'btn', onclick:function(){ sendQuick('hold'); }}, ['Draft Hold Email'])
+    ]);
+    quickWrap.appendChild(qBtnRow);
+
+    function sendQuick(kind){
+      if(!picked){ showToast('Pick a freelancer first.'); return; }
+      if(!picked.email){ showToast(picked.name + ' has no email on file.'); return; }
+      var tmpl = emailTemplate(kind, picked, {project:qProject.value, dates:qDates.value, company:qCompany.value});
+      window.location.href = mailtoLink(picked, tmpl);
+    }
+
+    wrap.appendChild(quickWrap);
+
+    // Requests queue
+    wrap.appendChild(el('div', {style:'font-weight:700; margin-bottom:10px;'}, ['Requests (' + state.requests.length + ')']));
+    if(state.requests.length === 0){
+      wrap.appendChild(el('div', {class:'empty-state'}, ['No requests submitted yet.']));
+    } else {
+      state.requests.forEach(function(req){
+        var types = req.requestTypes || (req.requestType === 'both' ? ['booking','availability'] : req.requestType ? [req.requestType] : ['booking']);
+        var badgeMap = { booking: ['BOOKING','badge-low'], availability: ['AVAILABILITY','badge-medium'], rate: ['RATE','badge-high'] };
+        var badges = types.map(function(t){
+          var b = badgeMap[t] || ['REQUEST','badge-free'];
+          return el('span', {class:'badge ' + b[1]}, [b[0]]);
+        });
+        var card = el('div', {class:'req-card'}, [
+          el('div', {class:'req-top'}, [
+            el('div', {}, [
+              el('div', {style:'font-weight:700; display:flex; align-items:center; gap:8px; flex-wrap:wrap;'},
+                badges.concat([(req.freelancerName ? req.freelancerName + ' — ' : '') + req.roleNeeded + ' — ' + req.company])
+              ),
+              el('div', {class:'req-meta'}, [
+                'Requested by ' + req.requestor + (req.requestorEmail ? ' ('+req.requestorEmail+')' : '') + '\n' +
+                'Project: ' + (req.project || '—') + ' · Dates: ' + (req.dates || '—') + '\n' +
+                (req.notes ? 'Notes: ' + req.notes : '')
+              ])
+            ]),
+            el('div', {}, [
+              el('button', {class:'btn btn-danger', onclick:function(){
+                state.requests = state.requests.filter(function(x){ return x.id !== req.id; });
+                saveRequests(state.requests, function(){ render(); });
+              }}, ['Dismiss'])
+            ])
+          ])
+        ]);
+        wrap.appendChild(card);
+      });
+    }
+
+    // Internal Team roster
+    wrap.appendChild(renderInternalTeamSection());
+
+    return wrap;
+  }
+
+  function renderInternalTeamSection(){
+    var section = el('div', {style:'margin-top:36px; padding-top:28px; border-top:1px solid #2a2a2e;'});
+    section.appendChild(el('div', {class:'section-title'}, ['Internal Team']));
+    section.appendChild(el('div', {class:'section-hint'}, [
+      'Full-time employees and their project allocations, shown on the Projects tab. ' +
+      (state.isAdmin ? 'Add, edit, or remove people below.' : 'Log in as Admin (top right) to add or edit.')
+    ]));
+
+    if(state.isAdmin){
+      section.appendChild(renderEmployeeForm());
+    }
+
+    var companies = ['1stAve','SG','Studio PPS','Mudge'];
+    companies.forEach(function(co){
+      var emps = state.internalEmployees.filter(function(e){ return e.company === co; });
+      if(!emps.length) return;
+      section.appendChild(el('div', {style:'font-weight:700; margin:20px 0 10px;'}, [COMPANY_FULLNAME[co] || co]));
+      emps.forEach(function(emp){
+        var allocText = (emp.allocations||[]).map(function(a){
+          return a.project + (a.percentage != null ? ' (' + a.percentage + '%)' : '') + (a.dates ? ' · ' + a.dates : '');
+        }).join('\n') || 'No project allocations yet.';
+        var card = el('div', {class:'req-card'}, [
+          el('div', {class:'req-top'}, [
+            el('div', {}, [
+              el('div', {style:'font-weight:700;'}, [emp.name + ' — ' + (emp.role || 'Role not set')]),
+              el('div', {class:'req-meta'}, [allocText])
+            ]),
+            state.isAdmin ? el('div', {style:'display:flex; gap:8px;'}, [
+              el('button', {class:'btn', onclick:function(){ state.editingEmployeeId = emp.id; render(); }}, ['Edit']),
+              el('button', {class:'btn btn-danger', onclick:function(){
+                state.internalEmployees = state.internalEmployees.filter(function(x){ return x.id !== emp.id; });
+                saveInternalEmployees(state.internalEmployees, function(){ showToast('Removed ' + emp.name + '.'); render(); });
+              }}, ['Delete'])
+            ]) : null
+          ])
+        ]);
+        section.appendChild(card);
+      });
+    });
+
+    if(!state.internalEmployees.length){
+      section.appendChild(el('div', {class:'empty-state'}, ['No internal employees added yet.']));
+    }
+
+    return section;
+  }
+
+  function renderEmployeeForm(){
+    var editing = state.editingEmployeeId ? state.internalEmployees.find(function(e){ return e.id === state.editingEmployeeId; }) : null;
+    var panel = el('div', {class:'panel', style:'margin-bottom:24px;'});
+    panel.appendChild(el('div', {style:'font-weight:700; margin-bottom:12px;'}, [editing ? ('Editing ' + editing.name) : 'Add Employee']));
+
+    var nameInput = el('input', {type:'text', value: editing ? editing.name : ''});
+    var roleInput = el('input', {type:'text', value: editing ? (editing.role||'') : ''});
+    var companySelect = selectFormField('Company', ['1stAve','SG','Studio PPS','Mudge'], function(){}, editing ? editing.company : '1stAve');
+
+    panel.appendChild(el('div', {class:'form-grid'}, [
+      el('div', {class:'form-field'}, [el('label',{},['Name']), nameInput]),
+      el('div', {class:'form-field'}, [el('label',{},['Role']), roleInput]),
+      companySelect
+    ]));
+
+    var allocContainer = el('div', {style:'margin-top:14px;'}, []);
+    var allocRows = [];
+
+    function getActiveProjectNames(){
+      var names = {};
+      DATA.forEach(function(r){ if(isBooked(r) && r.currentProject) names[r.currentProject] = true; });
+      state.internalEmployees.forEach(function(emp){
+        (emp.allocations || []).forEach(function(a){ if(a.project) names[a.project] = true; });
+      });
+      return Object.keys(names).sort();
+    }
+    var activeProjects = getActiveProjectNames();
+
+    function addAllocRow(prefill){
+      prefill = prefill || {};
+      var isKnownProject = prefill.project && activeProjects.indexOf(prefill.project) !== -1;
+
+      var projectSelect = el('select', {});
+      projectSelect.appendChild(el('option', {value:''}, ['Select a project…']));
+      activeProjects.forEach(function(name){
+        var opt = el('option', {value:name}, [name]);
+        if(prefill.project === name) opt.selected = true;
+        projectSelect.appendChild(opt);
+      });
+      var newOpt = el('option', {value:'__new__'}, ['+ Add New Project']);
+      if(prefill.project && !isKnownProject) newOpt.selected = true;
+      projectSelect.appendChild(newOpt);
+
+      var newProjectInput = el('input', {
+        type:'text', placeholder:'New project name',
+        style:'margin-top:6px; display:' + ((prefill.project && !isKnownProject) ? 'block' : 'none') + ';',
+        value: (prefill.project && !isKnownProject) ? prefill.project : ''
+      });
+
+      projectSelect.addEventListener('change', function(e){
+        newProjectInput.style.display = e.target.value === '__new__' ? 'block' : 'none';
+      });
+
+      var pctInput = el('input', {type:'number', placeholder:'% capacity', min:'0', max:'100', value: prefill.percentage != null ? prefill.percentage : ''});
+      var datesInput = el('input', {type:'text', placeholder:'Dates (e.g. Aug 1 – Sep 30)', value: prefill.dates || ''});
+      var rowObj = {projectSelect:projectSelect, newProjectInput:newProjectInput, pctInput:pctInput, datesInput:datesInput};
+      var removeBtn = el('button', {class:'btn btn-danger', onclick:function(){
+        allocContainer.removeChild(rowObj.rowEl);
+        allocRows = allocRows.filter(function(r){ return r !== rowObj; });
+      }}, ['Remove']);
+      var rowEl = el('div', {class:'form-grid', style:'grid-template-columns:2fr 1fr 2fr auto; gap:8px; margin-bottom:8px; align-items:end;'}, [
+        el('div', {class:'form-field'}, [el('label',{},['Project']), projectSelect, newProjectInput]),
+        el('div', {class:'form-field'}, [el('label',{},['Capacity %']), pctInput]),
+        el('div', {class:'form-field'}, [el('label',{},['Dates']), datesInput]),
+        removeBtn
+      ]);
+      rowObj.rowEl = rowEl;
+      allocRows.push(rowObj);
+      allocContainer.appendChild(rowEl);
+    }
+
+    if(editing && editing.allocations && editing.allocations.length){
+      editing.allocations.forEach(function(a){ addAllocRow(a); });
+    } else {
+      addAllocRow();
+    }
+
+    panel.appendChild(el('div', {style:'font-family:IBM Plex Mono,monospace; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.4px; margin-top:10px; margin-bottom:8px;'}, ['Project Allocations']));
+    panel.appendChild(allocContainer);
+    panel.appendChild(el('button', {class:'btn', style:'margin-bottom:16px;', onclick:function(){ addAllocRow(); }}, ['+ Add Another Project']));
+
+    var btnRow = el('div', {style:'display:flex; gap:10px;'}, [
+      el('button', {class:'btn btn-primary', onclick:function(){
+        var name = nameInput.value.trim();
+        var role = roleInput.value.trim();
+        var company = companySelect.querySelector('select').value;
+        if(!name){ showToast('Please add a name.'); return; }
+        var allocations = allocRows.map(function(r){
+          var projectName = r.projectSelect.value === '__new__' ? r.newProjectInput.value.trim() : r.projectSelect.value;
+          return {
+            project: projectName,
+            percentage: r.pctInput.value !== '' ? Number(r.pctInput.value) : null,
+            dates: r.datesInput.value.trim()
+          };
+        }).filter(function(a){ return a.project; });
+
+        if(editing){
+          editing.name = name; editing.role = role; editing.company = company; editing.allocations = allocations;
+        } else {
+          state.internalEmployees.push({ id: 'emp_' + Date.now(), name: name, role: role, company: company, allocations: allocations });
+        }
+        state.editingEmployeeId = null;
+        saveInternalEmployees(state.internalEmployees, function(){
+          showToast(editing ? 'Updated ' + name + '.' : 'Added ' + name + '.');
+          render();
+        });
+      }}, [editing ? 'Save Changes' : 'Add Employee'])
+    ]);
+    if(editing){
+      btnRow.appendChild(el('button', {class:'btn', onclick:function(){ state.editingEmployeeId = null; render(); }}, ['Cancel']));
+    }
+    panel.appendChild(btnRow);
+
+    return panel;
+  }
+
+  /* ---------------- render: modal ---------------- */
+  function renderModal(){
+    if(!state.modalPerson) return null;
+    var r = state.modalPerson;
+    var portfolioUrl = r.portfolio ? r.portfolio.replace(/^.*?-\s*/, '') : null;
+    var overlay = el('div', {class:'modal-overlay', onclick:function(e){ if(e.target === overlay){ state.modalPerson=null; render(); } }});
+    var modal = el('div', {class:'modal'}, [
+      el('button', {class:'modal-close', onclick:function(){ state.modalPerson=null; render(); }}, ['✕']),
+      r.trusted ? el('div', {class:'trusted-tag', style:'position:static; display:inline-block; margin-bottom:8px;'}, ['Trusted Freelancer']) : null,
+      el('h2', {}, [r.name]),
+      el('div', {class:'role-line'}, [r.role || 'Role not set']),
+
+      el('div', {class:'modal-section'}, [
+        el('h4', {}, ['Status']),
+        el('p', {}, [
+          r.company ? ('Booked on ' + (r.currentProject||'—') + ' with ' + r.company + (r.bookedDates ? ' · ' + formatDateRange(r.bookedDates) : '') + (r.allocation ? ' · ' + r.allocation + ' allocation' : '')) : 'Not currently booked.'
+        ]),
+        r.bookedDates2 ? el('p', {style:'margin-top:6px;color:var(--muted);'}, ['Second booking window: ' + formatDateRange(r.bookedDates2)]) : null,
+        r.currentHold ? el('p', {style:'margin-top:6px;color:var(--muted);'}, ['On hold for ' + r.currentHold + (r.holdDates ? ' · ' + formatDateRange(r.holdDates) : '')]) : null
+      ]),
+
+      (r.location || (state.isAdmin && r.rate) || r.email) ? el('div', {class:'modal-section'}, [
+        el('h4', {}, ['Details']),
+        el('p', {}, [
+          (r.location ? 'Based in ' + r.location + '\n' : '') +
+          (state.isAdmin && r.rate ? 'Preferred rate: ' + r.rate + (r.ratePer?'/'+r.ratePer:'') + '\n' : '') +
+          (r.email ? 'Email: ' + r.email : '')
+        ])
+      ]) : null,
+
+      r.aiSummary ? el('div', {class:'modal-section'}, [el('h4',{},['Summary']), el('p',{},[r.aiSummary])]) : null,
+      r.work ? el('div', {class:'modal-section'}, [el('h4',{},['Past Work']), el('p',{},[r.work])]) : null,
+      r.industries ? el('div', {class:'modal-section'}, [el('h4',{},['Industries']), el('div',{class:'chip-row'}, r.industries.split(',').map(function(s){return el('span',{class:'chip'},[s.trim()]);}))]) : null,
+      skillList(r).length ? el('div', {class:'modal-section'}, [el('h4',{},['Skills']), el('div',{class:'chip-row'}, skillList(r).map(function(s){return el('span',{class:'chip'},[s]);}))]) : null,
+      r.duoPartner ? el('div', {class:'modal-section'}, [el('h4',{},['Pairs well with']), el('p',{},[r.duoPartner])]) : null,
+      (state.isAdmin && r.notes) ? el('div', {class:'modal-section'}, [el('h4',{},['Notes']), el('p',{},[r.notes])]) : null,
+      r.availability ? el('div', {class:'modal-section'}, [el('h4',{},['Availability']), el('p',{},[r.availability])]) : null,
+
+      el('div', {class:'link-row'}, [
+        portfolioUrl ? el('a', {href:portfolioUrl, target:'_blank'}, ['Portfolio ↗']) : null,
+        r.linkedin ? el('a', {href:r.linkedin, target:'_blank'}, ['LinkedIn ↗']) : null,
+        r.resume ? el('a', {href:r.resume, target:'_blank'}, ['Resume ↗']) : null
+      ]),
+
+      el('div', {class:'modal-actions'}, [
+        el('button', {class:'heart-btn-inline' + (state.favorites.indexOf(r.id)!==-1?' active':''), onclick:function(){
+          toggleFavorite(r.id);
+          state.modalPerson = r;
+        }}, [(state.favorites.indexOf(r.id)!==-1 ? '♥ Favorited' : '♡ Add to My Favorites')])
+      ])
+    ]);
+    overlay.appendChild(modal);
+    return overlay;
+  }
+
+  /* ---------------- main render ---------------- */
+  function render(){
+    var root = document.getElementById('root');
+    root.innerHTML = '';
+    root.appendChild(renderHeader());
+    var wrap = el('div', {class:'wrap'});
+    if(state.tab === 'directory') wrap.appendChild(renderDirectory());
+    else if(state.tab === 'projects') wrap.appendChild(renderProjects());
+    else if(state.tab === 'reuse') wrap.appendChild(renderReuseOpportunities());
+    else if(state.tab === 'capacity') wrap.appendChild(renderCapacity());
+    else if(state.tab === 'favorites') wrap.appendChild(renderFavorites());
+    else if(state.tab === 'request') wrap.appendChild(renderRequestForm());
+    else if(state.tab === 'admin') wrap.appendChild(state.isAdmin ? renderAdmin() : el('div', {class:'empty-state'}, ['You need admin access to view this page. Ask whoever manages the ADMIN_EMAILS_* settings to add your email.']));
+    root.appendChild(wrap);
+    var modal = renderModal();
+    if(modal) root.appendChild(modal);
+    var empModal = renderEmployeeModal();
+    if(empModal) root.appendChild(empModal);
+    if(state.toast) root.appendChild(el('div', {class:'toast'}, [state.toast]));
+  }
+
+  function loadEverythingAndRender(){
+    loadRequests(function(reqs){
+      state.requests = reqs;
+      loadFavorites(function(favs){
+        state.favorites = favs;
+        loadInternalEmployees(function(emps){
+          state.internalEmployees = emps;
+          loadManualAssignments(function(assigns){
+            state.manualAssignments = assigns;
+            loadProfile(function(profile){
+              state.profile = profile && (profile.name || profile.email)
+                ? profile
+                : { name: (window.Clerk.user && window.Clerk.user.fullName) || '', email: state.userEmail || '' };
+              render();
+            });
+          });
+        });
+      });
+    });
+  }
+
+  function fetchFreelancerData(cb){
+    fetch('/.netlify/functions/get-freelancers')
+      .then(function(res){ return res.json(); })
+      .then(function(json){
+        DATA = json.items || [];
+        freelancerDataUpdatedAt = json.updatedAt || null;
+        cb();
+      })
+      .catch(function(){ DATA = []; cb(); });
+  }
+
+  function startApp(){
+    document.getElementById('signin-gate').style.display = 'none';
+    document.getElementById('root').style.display = '';
+    fetchFreelancerData(loadEverythingAndRender);
+  }
+
+  // --- Clerk boot sequence ---
+  window.addEventListener('load', function(){
+    if(!window.Clerk){
+      document.getElementById('clerk-signin-container').textContent =
+        'Could not load Clerk. Check your publishable key and network connection.';
+      return;
+    }
+    window.Clerk.load().then(function(){
+      if(window.Clerk.user){
+        window.Clerk.session.getToken().then(function(token){
+          clerkToken = token;
+          var email = window.Clerk.user.primaryEmailAddress ? window.Clerk.user.primaryEmailAddress.emailAddress : '';
+          state.userEmail = email;
+          fetch('/.netlify/functions/me', { headers: { 'Authorization': 'Bearer ' + token } })
+            .then(function(res){ return res.ok ? res.json() : { isAdmin:false, adminCompanies:[] }; })
+            .then(function(me){
+              state.isAdmin = !!me.isAdmin;
+              state.adminCompanies = me.adminCompanies || [];
+              startApp();
+            });
+        });
+      } else {
+        window.Clerk.mountSignIn(document.getElementById('clerk-signin-container'));
+        window.Clerk.addListener(function(payload){
+          if(payload.user){ window.location.reload(); }
+        });
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Scheduled sync: pulls fresh data from monday.com automatically.
+# Cron format: minute hour day month weekday. This runs every 6 hours.
+# Adjust as needed (e.g. "0 */1 * * *" for hourly) once you see how heavy monday.com's
+# rate limits are in practice.
+[functions."sync-monday"]
+  schedule = "0 */6 * * *"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
