@@ -1163,12 +1163,12 @@
 
   function personCard(r){
     var booked = isBooked(r);
-    var hasStatus = !!(booked || r.currentHold);
-    var statusColor = booked ? 'var(--c-mudge)' : 'var(--amber)';
-    var statusTint = booked ? 'rgba(143,191,107,.1)' : 'rgba(242,201,76,.1)';
+    var hasActiveStatus = !!(booked || r.currentHold);
+    var statusColor = booked ? 'var(--c-mudge)' : (r.currentHold ? 'var(--amber)' : 'var(--muted)');
+    var statusTint = booked ? 'rgba(143,191,107,.1)' : (r.currentHold ? 'rgba(242,201,76,.1)' : 'rgba(255,255,255,.03)');
     var statusLabel = booked
       ? 'Booked — ' + (COMPANY_FULLNAME[r.company] || r.company) + ' · ' + (r.currentProject || 'Project TBD') + (r.bookedDates ? ' · ' + formatDateRange(r.bookedDates) : '')
-      : (r.currentHold ? 'On hold — ' + r.currentHold + (r.holdDates ? ' · ' + formatDateRange(r.holdDates) : '') : '');
+      : (r.currentHold ? 'On hold — ' + r.currentHold + (r.holdDates ? ' · ' + formatDateRange(r.holdDates) : '') : 'Available — not currently booked');
     var isFav = state.favorites.indexOf(r.id) !== -1;
     var portfolioUrl = r.portfolio || null;
     var badges = [];
@@ -1201,10 +1201,10 @@
         el('div', {class:'badge-row'}, badges),
         el('div', {class:'rcard-links'}, [portfolioUrl ? el('a', {href:portfolioUrl, target:'_blank', class:'card-link', onclick:function(e){e.stopPropagation();}}, ['Portfolio']) : null]),
         el('div', {class:'rcard-divider'}, []),
-        hasStatus ? el('div', {class:'status-highlight', style:'--status-tint:'+statusTint+';'}, [
+        el('div', {class:'status-highlight', style:'--status-tint:'+statusTint+';'}, [
           el('span', {class:'status-dot', style:'background:'+statusColor}, []),
           el('span', {style:'color:'+statusColor+'; font-weight:700; font-size:15px; line-height:1.4;'}, [statusLabel])
-        ]) : null
+        ])
       ].concat(infoRows))
     ]);
     return card;
