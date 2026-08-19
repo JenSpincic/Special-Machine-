@@ -5,12 +5,16 @@
 [functions]
   node_bundler = "esbuild"
 
-# Scheduled sync: pulls fresh data from monday.com automatically.
-# Cron format: minute hour day month weekday. This runs every 6 hours.
-# Adjust as needed (e.g. "0 */1 * * *" for hourly) once you see how heavy monday.com's
-# rate limits are in practice.
-[functions."sync-monday"]
-  schedule = "0 */6 * * *"
+# Scheduled syncs (Golden Rolodex + Team Capacity) run at 8:00 AM and 4:00 PM
+# Pacific Standard Time, Monday through Friday. The actual schedules are
+# defined inside sync-monday-am.mjs, sync-monday-pm.mjs, sync-capacity-am.mjs,
+# and sync-capacity-pm.mjs (via each file's own `export const config`), not
+# here — Netlify picks those up automatically, no config needed in this file
+# for them.
+#
+# sync-monday.mjs and sync-capacity.mjs themselves are no longer scheduled —
+# they're now admin-only manual triggers, called by the "Sync Now" button in
+# the Admin tab.
 
 [[redirects]]
   from = "/*"
