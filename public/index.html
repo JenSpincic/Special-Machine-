@@ -172,7 +172,7 @@
   }
 
   /* ---------- Directory grid ---------- */
-  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px; align-items:stretch;}
   .rcard{
     display:flex; background:var(--card); border:1px solid var(--card-line); border-radius:6px;
     overflow:visible; cursor:pointer; height:100%; position:relative;
@@ -186,7 +186,7 @@
   .rcard-spine{width:6px; flex-shrink:0; background:var(--company-color, var(--card-line)); border-radius:6px 0 0 6px;}
   .rcard-body-wrap{padding:20px 20px 20px 18px; flex:1; min-width:0;}
   .rcard-head{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
-  .badge-row{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;}
+  .badge-row{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; min-height:26px;}
   .badge-pill{
     display:inline-flex; align-items:center; gap:5px;
     font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600; letter-spacing:0.4px;
@@ -233,7 +233,7 @@
     font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:14px; color:var(--amber);
     margin-top:3px; letter-spacing:0.5px; text-transform:uppercase; line-height:1.4;
   }
-  .rcard-links{margin-top:12px;}
+  .rcard-links{margin-top:12px; min-height:20px;}
   .rcard-divider{height:1px; background:var(--card-line); margin:14px 0;}
   .info-row{font-size:15px; color:var(--chalk); display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-top:8px;}
   .info-label{
@@ -280,7 +280,7 @@
     color:#141210; background:var(--amber); padding:10px 16px; border-radius:4px; margin-bottom:12px;
   }
   .project-title:before{content:''; width:8px; height:8px; border-radius:50%; background:#141210; flex-shrink:0; opacity:.55;}
-  .board-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px;}
+  .board-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; align-items:stretch;}
   .hold-company-header{
     display:flex; align-items:center; gap:8px; font-family:'Oswald',sans-serif; font-weight:700;
     text-transform:uppercase; font-size:15px; letter-spacing:0.4px; color:var(--chalk);
@@ -289,7 +289,7 @@
   .hold-company-dot{width:10px; height:10px; border-radius:50%; flex-shrink:0;}
   .board-card{
     display:flex; background:var(--card); border:1px solid var(--card-line); border-radius:6px;
-    overflow:hidden; transition:border-color .15s, transform .12s, box-shadow .15s;
+    overflow:hidden; height:100%; transition:border-color .15s, transform .12s, box-shadow .15s;
   }
   .board-card-spine{width:5px; flex-shrink:0; background:var(--company-color, var(--card-line));}
   .board-card-body{padding:14px 15px 15px; flex:1; min-width:0;}
@@ -1198,8 +1198,8 @@
             }, ['+'])
           ])
         ]),
-        badges.length ? el('div', {class:'badge-row'}, badges) : null,
-        portfolioUrl ? el('div', {class:'rcard-links'}, [el('a', {href:portfolioUrl, target:'_blank', class:'card-link', onclick:function(e){e.stopPropagation();}}, ['Portfolio'])]) : null,
+        el('div', {class:'badge-row'}, badges),
+        el('div', {class:'rcard-links'}, [portfolioUrl ? el('a', {href:portfolioUrl, target:'_blank', class:'card-link', onclick:function(e){e.stopPropagation();}}, ['Portfolio']) : null]),
         el('div', {class:'rcard-divider'}, []),
         hasStatus ? el('div', {class:'status-highlight', style:'--status-tint:'+statusTint+';'}, [
           el('span', {class:'status-dot', style:'background:'+statusColor}, []),
@@ -1256,8 +1256,8 @@
           heartButtonEl(r)
         ]),
         el('div', {class:'rcard-role'}, [r.role || 'Role not set']),
-        badges.length ? el('div', {class:'badge-row'}, badges) : null,
-        r.portfolio ? el('div', {class:'rcard-links'}, [el('a', {href:r.portfolio, target:'_blank', class:'card-link', onclick:function(e){e.stopPropagation();}}, ['Portfolio'])]) : null,
+        el('div', {class:'badge-row'}, badges),
+        el('div', {class:'rcard-links'}, [r.portfolio ? el('a', {href:r.portfolio, target:'_blank', class:'card-link', onclick:function(e){e.stopPropagation();}}, ['Portfolio']) : null]),
         el('div', {class:'rcard-divider'}, []),
         el('div', {class:'board-card-stats'}, stats)
       ])
