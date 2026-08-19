@@ -1,4 +1,4 @@
-// Sends a "Rolodex Request" email alert to jen@1stavemachine.com whenever
+// Sends a "Talent Request" email alert to jen@1stavemachine.com whenever
 // someone submits a booking/availability/rate request through the site.
 // Called by the front end right after it saves the request via data.mjs —
 // this is a separate call so a failed email never blocks the request itself
@@ -34,7 +34,18 @@ export default async (req) => {
     return new Response(JSON.stringify({ error: "Invalid JSON body" }), { status: 400 });
   }
 
-  const { requestor, requestorEmail, requestTypes, freelancerName, roleNeeded, company, project, dates, notes } = body;
+  const { id, requestor, requestorEmail, requestTypes, freelancerName, roleNeeded, company, project, dates, notes } = body;
+
+  // Build a link straight back into the site, deep-linked to this specific
+  // request in the Admin tab. Falls back to just linking the homepage if for
+  // some reason the origin can't be determined.
+  let requestLink = "";
+  try {
+    const origin = new URL(req.url).origin;
+    requestLink = id ? `${origin}/?requestId=${encodeURIComponent(id)}` : origin;
+  } catch (e) {
+    requestLink = "";
+  }
 
   const lines = [
     `Requested by: ${requestor || "—"}${requestorEmail ? " (" + requestorEmail + ")" : ""}`,
@@ -45,7 +56,9 @@ export default async (req) => {
     `Project: ${project || "—"}`,
     `Dates: ${dates || "—"}`,
     `Notes: ${notes || "—"}`,
-  ];
+    "",
+    requestLink ? `Open this request: ${requestLink}` : "",
+  ].filter(Boolean);
 
   try {
     const res = await fetch("https://api.resend.com/emails", {
@@ -57,7 +70,7 @@ export default async (req) => {
       body: JSON.stringify({
         from: FROM_ADDRESS,
         to: [ALERT_TO],
-        subject: "Rolodex Request",
+        subject: "Talent Request",
         text: lines.join("\n"),
       }),
     });
