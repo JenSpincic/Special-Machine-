@@ -5,7 +5,7 @@
 <title>Special Machine Talent Hub</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!--
   Replace YOUR_CLERK_PUBLISHABLE_KEY below with your real Clerk publishable key
   (starts with pk_live_ or pk_test_) from the Clerk Dashboard -> API Keys.
@@ -14,8 +14,8 @@
 <script
   async
   crossorigin="anonymous"
-  data-clerk-publishable-key="pk_test_cHJvbXB0LW1hcm1vc2V0LTc2NTguY2xlcmsuYWNjb3VudHMuZGV2JA"
- src="https://prompt-marmoset-7658.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+  data-clerk-publishable-key="YOUR_CLERK_PUBLISHABLE_KEY"
+  src="https://prompt-marmoset-7658.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
   type="text/javascript"
 ></script>
 <style>
@@ -49,7 +49,7 @@
 
   /* ---------- Slate header ---------- */
   .slate{
-    background:repeating-linear-gradient(135deg, #1a1a1c 0 22px, #1f1f22 22px 44px);
+    background:var(--card);
     border-bottom:4px solid var(--amber);
     padding:22px 28px 18px;
     position:sticky; top:0; z-index:40;
@@ -96,6 +96,11 @@
     transition:color .15s, border-color .15s;
   }
   .tab-btn:hover{color:var(--chalk);}
+  .tab-badge{
+    display:inline-flex; align-items:center; justify-content:center; min-width:17px; height:17px;
+    background:var(--danger); color:#fff; font-family:'IBM Plex Mono',monospace; font-weight:700;
+    font-size:10px; border-radius:20px; margin-left:7px; padding:0 5px; vertical-align:middle;
+  }
   .tab-btn.active{color:var(--amber); border-bottom-color:var(--amber);}
   .admin-status{margin-left:auto; padding:6px 0;}
   .admin-toggle-btn{
@@ -166,50 +171,45 @@
   }
 
   /* ---------- Directory grid ---------- */
-  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(268px,1fr)); gap:16px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px;}
   .rcard{
-    background:var(--card);
-    border:1px solid var(--card-line);
-    border-radius:4px;
-    padding:26px 18px 34px;
-    cursor:pointer;
-    position:relative;
-    overflow:visible;
-    height:100%;
-    transition:border-color .18s, transform .15s, box-shadow .18s;
-  }
-  .rcard-tab{
-    position:absolute; top:-1px; left:18px; width:46px; height:7px; border-radius:0 0 3px 3px;
-    background:var(--company-color, var(--card-line));
-  }
-  .rcard-clip{
-    position:absolute; top:-10px; right:16px; width:18px; height:24px;
-    border:2.5px solid #55554f; border-radius:3px; background:transparent; opacity:.55; pointer-events:none;
+    display:flex; background:var(--card); border:1px solid var(--card-line); border-radius:6px;
+    overflow:visible; cursor:pointer; height:100%; position:relative;
+    transition:border-color .15s, transform .16s, box-shadow .18s;
   }
   .rcard:hover{
-    border-color:var(--amber); transform:translateY(-3px);
-    box-shadow:0 12px 28px rgba(0,0,0,.4);
+    border-color:var(--company-color, var(--amber));
+    transform:translateY(-3px);
+    box-shadow:0 14px 32px rgba(0,0,0,.45);
   }
-  .stamp-stack{position:absolute; bottom:14px; right:14px; display:flex; flex-direction:column; align-items:flex-end; gap:5px; z-index:3;}
-  .stamp{
-    font-family:'Oswald',sans-serif; font-weight:600; font-size:10px; text-transform:uppercase;
-    letter-spacing:0.8px; padding:2px 9px; border-radius:2px; border:1.5px solid currentColor;
-    transform:rotate(-6deg); white-space:nowrap; background:rgba(20,20,20,.35);
+  .rcard-spine{width:6px; flex-shrink:0; background:var(--company-color, var(--card-line)); border-radius:6px 0 0 6px;}
+  .rcard-body-wrap{padding:20px 20px 20px 18px; flex:1; min-width:0;}
+  .rcard-head{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .badge-row{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;}
+  .badge-pill{
+    display:inline-flex; align-items:center; gap:5px;
+    font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:600; letter-spacing:0.4px;
+    text-transform:uppercase; padding:3px 9px 3px 7px; border-radius:20px;
+    border:1px solid currentColor; background:rgba(255,255,255,.03); white-space:nowrap;
   }
-  .stamp-trusted{color:var(--c-mudge);}
-  .stamp-roster{color:var(--c-1stave);}
-  .card-actions{position:absolute; top:12px; right:10px; display:flex; gap:2px; z-index:2;}
+  .badge-pill:before{content:''; width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0;}
+  .badge-trusted{color:var(--c-mudge);}
+  .badge-roster{color:var(--c-1stave);}
+  .card-actions{
+    display:flex; align-items:center; flex-shrink:0; background:rgba(255,255,255,.04);
+    border-radius:20px; padding:2px;
+  }
   .heart-btn{
     background:none; border:none; cursor:pointer;
-    font-size:17px; color:var(--muted); line-height:1; padding:2px 4px;
+    font-size:16px; color:var(--muted); line-height:1; padding:5px 8px; border-radius:16px;
   }
-  .heart-btn:hover{color:var(--danger);}
+  .heart-btn:hover{color:var(--danger); background:rgba(224,82,107,.12);}
   .heart-btn.active{color:var(--danger);}
   .book-btn{
-    background:none; border:none; cursor:pointer; font-size:19px; color:var(--muted);
-    line-height:1; padding:2px 4px; font-family:'IBM Plex Mono',monospace; font-weight:600;
+    background:none; border:none; cursor:pointer; font-size:15px; color:var(--muted);
+    line-height:1; padding:5px 9px; font-family:'IBM Plex Mono',monospace; font-weight:700; border-radius:16px;
   }
-  .book-btn:hover{color:var(--amber);}
+  .book-btn:hover{color:var(--amber); background:rgba(242,201,76,.12);}
   .prefill-banner{
     background:rgba(242,201,76,.12); border:1px solid var(--amber-dim); color:var(--amber);
     font-family:'IBM Plex Mono',monospace; font-size:12.5px; padding:10px 14px; border-radius:3px;
@@ -225,20 +225,27 @@
   }
   .heart-btn-inline.active{color:var(--danger); border-color:var(--danger);}
   .rcard-name{
-    font-size:17px; font-weight:700; line-height:1.3; padding-right:60px;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    font-family:'Space Grotesk',sans-serif; font-size:21px; font-weight:700; line-height:1.2;
+    color:var(--chalk); overflow-wrap:break-word;
   }
   .rcard-role{
-    font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--amber); margin-top:4px; letter-spacing:0.2px;
-    line-height:1.4; min-height:2.8em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
-    overflow:hidden;
+    font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:11.5px; color:var(--amber);
+    margin-top:3px; letter-spacing:0.5px; text-transform:uppercase; line-height:1.4;
   }
-  .rcard-body{padding-top:14px; margin-top:12px; border-top:1px solid #262629;}
-  .rcard-row{font-size:12px; color:var(--muted); margin-bottom:3px; display:flex; gap:6px; flex-wrap:wrap;}
-  .card-link{color:#6db8f2; text-decoration:underline; text-underline-offset:2px; font-family:'IBM Plex Mono',monospace; font-size:12.5px; font-weight:700; word-break:break-all;}
+  .rcard-links{margin-top:12px;}
+  .rcard-divider{height:1px; background:var(--card-line); margin:14px 0;}
+  .info-row{font-size:13px; color:var(--chalk); display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-top:8px;}
+  .info-label{
+    font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); text-transform:uppercase;
+    letter-spacing:0.4px; flex-shrink:0;
+  }
+  .card-link{color:#6db8f2; text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:12.5px; font-weight:700; word-break:break-all; text-align:right;}
   .card-link:hover{color:#96cdff;}
-  .rcard-row b{color:var(--chalk); font-weight:500;}
-  .status-dot{width:7px;height:7px;border-radius:50%; display:inline-block; margin-right:6px; flex-shrink:0; margin-top:4px;}
+  .status-highlight{
+    display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:5px;
+    background:var(--status-tint, rgba(255,255,255,.03)); margin-top:2px;
+  }
+  .status-dot{width:7px;height:7px;border-radius:50%; display:inline-block; flex-shrink:0;}
   .status-block{margin-bottom:10px;}
   .status-block-head{display:flex; align-items:center; gap:6px; margin-bottom:4px;}
   .status-block-head .status-dot{margin-top:0;}
@@ -272,25 +279,27 @@
     color:#141210; background:var(--amber); padding:10px 16px; border-radius:4px; margin-bottom:12px;
   }
   .project-title:before{content:''; width:8px; height:8px; border-radius:50%; background:#141210; flex-shrink:0; opacity:.55;}
-  .board-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:10px;}
+  .board-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px;}
   .board-card{
-    background:var(--card); border:1px solid var(--card-line); border-radius:7px;
-    padding:12px 13px; transition:border-color .15s, transform .12s, background .15s;
+    display:flex; background:var(--card); border:1px solid var(--card-line); border-radius:6px;
+    overflow:hidden; transition:border-color .15s, transform .12s, box-shadow .15s;
   }
-  .board-card:hover{border-color:var(--amber); transform:translateY(-2px); background:#1f1f22;}
+  .board-card-spine{width:5px; flex-shrink:0; background:var(--company-color, var(--card-line));}
+  .board-card-body{padding:14px 15px 15px; flex:1; min-width:0;}
+  .board-card:hover{border-color:var(--company-color, var(--amber)); transform:translateY(-2px); box-shadow:0 10px 22px rgba(0,0,0,.35);}
   .board-card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:6px; margin-bottom:2px;}
   .board-card-name{
-    font-family:'IBM Plex Sans',sans-serif; font-weight:700; font-size:13.5px; cursor:pointer; color:var(--chalk);
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15.5px; cursor:pointer; color:var(--chalk);
     line-height:1.3;
   }
   .board-card-name:hover{color:var(--amber);}
-  .board-card-role{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--amber); margin-bottom:8px;}
-  .board-card-stats{display:flex; flex-direction:column; gap:6px;}
+  .board-card-role{font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:10.5px; color:var(--amber); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px;}
+  .board-card-stats{display:flex; flex-direction:column; gap:7px;}
   .board-stat-label{
     font-family:'IBM Plex Mono',monospace; font-size:9px; text-transform:uppercase;
     letter-spacing:0.5px; color:var(--muted); display:block;
   }
-  .board-stat-value{font-family:'IBM Plex Sans',sans-serif; font-size:12px; color:var(--chalk); line-height:1.3; display:block;}
+  .board-stat-value{font-family:'IBM Plex Sans',sans-serif; font-size:12.5px; color:var(--chalk); line-height:1.3; display:block; margin-top:1px;}
   .name-link{color:var(--chalk); cursor:pointer; font-weight:600;}
   .name-link:hover{color:var(--amber);}
 
@@ -334,30 +343,35 @@
   /* ---------- Project cards ---------- */
   .project-grid-outer{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px;}
   .project-card{
-    background:
-      repeating-linear-gradient(135deg, #1c1c1f 0 20px, #1f1f22 20px 40px);
-    border:1px solid var(--card-line); border-radius:10px;
-    padding:22px 20px 22px 24px;
-    cursor:pointer; position:relative; overflow:hidden; min-height:120px;
-    display:flex; justify-content:space-between; align-items:flex-start; gap:14px;
+    display:flex; background:var(--card); border:1px solid var(--card-line); border-radius:8px;
+    overflow:hidden; cursor:pointer; min-height:110px;
     transition:border-color .18s, transform .15s, box-shadow .18s;
   }
-  .project-card:before{
-    content:''; position:absolute; top:0; left:0; bottom:0; width:6px;
-    background:var(--project-accent, var(--card-line));
-  }
+  .project-card-spine{width:6px; flex-shrink:0; background:var(--project-accent, var(--card-line));}
+  .project-card-body{padding:18px 20px 20px; flex:1; min-width:0; display:flex; flex-direction:column; gap:10px;}
   .project-card:hover{
-    border-color:var(--amber); transform:translateY(-4px);
+    border-color:var(--project-accent, var(--amber)); transform:translateY(-4px);
     box-shadow:0 14px 30px rgba(0,0,0,.45);
+  }
+  .cross-company-tag{
+    align-self:flex-start;
+    font-family:'IBM Plex Mono',monospace; font-size:9.5px; font-weight:700; color:var(--amber);
+    text-transform:uppercase; letter-spacing:0.6px; border:1px solid var(--amber-dim);
+    padding:2px 8px; border-radius:20px; background:rgba(242,201,76,.08);
   }
   .project-card-main{min-width:0;}
   .project-card-name{
-    font-family:'Oswald',sans-serif; font-weight:700; text-transform:uppercase; font-size:19px; line-height:1.3;
-    margin-bottom:10px; word-break:break-word;
+    font-family:'Oswald',sans-serif; font-weight:700; text-transform:uppercase; font-size:17.5px; line-height:1.35;
+    word-break:normal; overflow-wrap:break-word; width:100%;
   }
   .project-card-tag{
     font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted);
     text-transform:uppercase; letter-spacing:0.5px; font-style:italic;
+  }
+  .project-card-chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .company-pill{
+    display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:700;
+    color:#141414; padding:3px 10px; border-radius:20px; white-space:nowrap;
   }
   .project-card-dots{display:flex; gap:5px; margin-top:12px;}
   .project-card-dot{width:10px; height:10px; border-radius:50%; flex-shrink:0;}
@@ -374,14 +388,22 @@
     padding:18px 20px; margin-bottom:14px; transition:border-color .15s;
   }
   .capacity-row:hover{border-color:#3a3a40;}
+  .capacity-row-head{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:14px;
+    margin-bottom:18px; padding-bottom:16px; border-bottom:1px solid #262629;
+  }
+  .capacity-row-who{min-width:0;}
+  .capacity-row-status{display:flex; flex-direction:column; align-items:flex-end; gap:7px; flex-shrink:0;}
   .capacity-name{font-family:'IBM Plex Sans',sans-serif; font-weight:700; font-size:16px;}
-  .capacity-role{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); margin-top:3px; margin-bottom:16px;}
-  .capacity-bar-block{margin-bottom:14px;}
+  .capacity-role{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); margin-top:3px;}
+  .capacity-bar-block{margin-bottom:18px;}
+  .capacity-bar-block:last-child{margin-bottom:0;}
   .capacity-bar-head{display:flex; align-items:baseline; gap:10px; margin-bottom:6px;}
   .capacity-bar-label{
-    font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase;
-    letter-spacing:0.5px; color:var(--muted); flex:1;
+    font-family:'Oswald',sans-serif; font-weight:700; font-size:13.5px; text-transform:uppercase;
+    letter-spacing:0.4px; color:var(--chalk); flex:1;
   }
+  .capacity-bar-total{font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:700; color:var(--chalk);}
   .capacity-pct{font-family:'Oswald',sans-serif; font-weight:700; text-transform:uppercase; font-size:26px; line-height:1;}
   .capacity-pct.green{color:var(--c-mudge);}
   .capacity-pct.amber{color:var(--amber);}
@@ -392,7 +414,11 @@
   }
   .capacity-track{
     height:24px; background:#232326; border-radius:6px; overflow:hidden; display:flex;
-    border:1px solid #2a2a2e;
+    border:1px solid #2a2a2e; position:relative;
+    background-image:
+      linear-gradient(90deg, transparent 24.7%, rgba(255,255,255,.09) 25%, rgba(255,255,255,.09) 25.3%, transparent 25.6%),
+      linear-gradient(90deg, transparent 49.7%, rgba(255,255,255,.09) 50%, rgba(255,255,255,.09) 50.3%, transparent 50.6%),
+      linear-gradient(90deg, transparent 74.7%, rgba(255,255,255,.09) 75%, rgba(255,255,255,.09) 75.3%, transparent 75.6%);
   }
   .capacity-segment{
     height:100%; display:flex; align-items:center; justify-content:center;
@@ -403,6 +429,9 @@
   .capacity-legend{display:flex; flex-wrap:wrap; gap:14px; margin-top:6px;}
   .capacity-legend span{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted);}
   .capacity-legend-dot{width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:6px; vertical-align:middle;}
+  .capacity-legend-project{font-weight:700;}
+  .capacity-legend-value{color:var(--chalk); font-weight:700;}
+  .capacity-legend-dates{color:var(--muted); font-style:italic;}
 
   /* ---------- Smart search / dispatch box ---------- */
   .dispatch-box{
@@ -437,6 +466,10 @@
   }
   .dispatch-results-body{max-height:560px; overflow-y:auto; padding-right:2px;}
   .dispatch-clear{color:var(--amber); cursor:pointer; text-decoration:underline; text-underline-offset:2px;}
+  .dispatch-reason{
+    font-family:'IBM Plex Sans',sans-serif; font-size:12px; color:var(--muted); font-style:italic;
+    margin-top:8px; line-height:1.4; padding:0 2px;
+  }
 
   /* ---------- Buttons ---------- */
   .btn{
@@ -464,6 +497,7 @@
 
   /* ---------- Admin ---------- */
   .req-card{background:var(--card); border:1px solid var(--card-line); border-radius:var(--radius); padding:16px; margin-bottom:12px;}
+  .req-card-highlight{border-color:var(--amber); box-shadow:0 0 0 3px rgba(242,201,76,.2);}
   .req-top{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;}
   .req-meta{font-size:12.5px; color:var(--muted); margin-top:6px; line-height:1.6;}
   .empty-state{
@@ -502,7 +536,7 @@
   }
   @media (max-width:400px){
     .rcard{padding:22px 14px 30px;}
-    .rcard-name{padding-right:44px; font-size:15.5px;}
+    .rcard-name{font-size:15.5px;}
   }
 </style>
 </head>
@@ -530,6 +564,8 @@
 
   var DATA = [];
   var freelancerDataUpdatedAt = null;
+  var CAPACITY_DATA = [];
+  var capacityDataUpdatedAt = null;
   var clerkToken = null; // set after Clerk sign-in; sent as Bearer token to our functions
 
   var state = {
@@ -560,7 +596,8 @@
     capacityFilterCompany: ['SpecialGuest'],
     projectAddMode: null,
     editingEmployeeId: null,
-    profile: {name:'', email:''}
+    profile: {name:'', email:''},
+    highlightRequestId: null
   };
 
   function el(tag, attrs, children){
@@ -742,11 +779,11 @@
       el('div', {class:'tabs'}, [
         tabBtn('directory','Directory'),
         tabBtn('projects','Projects'),
-        tabBtn('reuse','Reuse Opportunities'),
-        tabBtn('capacity','Team Capacity'),
+        tabBtn('reuse','Cross-Company Opportunities'),
+        state.isAdmin ? tabBtn('capacity','Team Capacity') : null,
         tabBtn('favorites','My Favorites'),
         tabBtn('request','Request Talent'),
-        state.isAdmin ? tabBtn('admin','Admin' + (state.requests.filter(function(r){return !r.read;}).length ? ' \u25CF' : '')) : null,
+        state.isAdmin ? tabBtn('admin','Admin', state.requests.filter(function(r){return !r.read;}).length) : null,
         el('div', {class:'admin-status'}, [
           el('span', {class:'mono', style:'color:var(--muted); font-size:11px; margin-right:10px;'}, [
             state.userEmail + (state.isAdmin ? ' · Admin (' + state.adminCompanies.join(', ') + ')' : '')
@@ -758,11 +795,13 @@
     return slate;
   }
 
-  function tabBtn(key, label){
+  function tabBtn(key, label, badgeCount){
+    var children = [label.toUpperCase()];
+    if(badgeCount) children.push(el('span', {class:'tab-badge'}, [String(badgeCount)]));
     return el('button', {
       class: 'tab-btn' + (state.tab === key ? ' active' : ''),
       onclick: function(){ state.tab = key; render(); }
-    }, [label.toUpperCase()]);
+    }, children);
   }
 
   /* ---------------- render: directory ---------------- */
@@ -858,27 +897,30 @@
   }
   function renderSmartSearch(){
     var box = el('div', {class:'dispatch-box'});
-    box.appendChild(el('div', {class:'dispatch-label'}, ['Talent dispatch — ask for what you need']));
+    box.appendChild(el('div', {class:'dispatch-label'}, ['Search for Freelancers to meet your project\u2019s needs']));
     box.appendChild(el('div', {class:'dispatch-hint'}, [
-      'Try "bilingual DP based in LA with automotive experience." Basic keyword matching for now — ask Claude to wire this up to real AI matching against your monday.com roster when you\u2019re ready for that.'
+      'Example \u2014 "I\u2019m looking for a Designer that has worked on projects with Google"'
     ]));
     var input = el('textarea', {class:'dispatch-input', rows:'1', placeholder:'Who are you looking for?'});
     var resultsEl = el('div', {}, []);
 
-    function runSearch(){
-      var q = input.value.trim().toLowerCase();
+    function renderResultsHead(count){
+      var head = el('div', {class:'dispatch-results-head'}, [
+        el('span', {}, [count + ' MATCH' + (count===1?'':'ES')]),
+        el('span', {class:'dispatch-clear', onclick:function(){ input.value=''; resultsEl.innerHTML=''; }}, ['Clear'])
+      ]);
+      resultsEl.appendChild(head);
+    }
+
+    function runBasicSearch(q, note){
       resultsEl.innerHTML = '';
-      if(!q){ showToast('Type what you are looking for first.'); return; }
       var terms = q.split(/[^a-z0-9]+/).filter(function(t){ return t.length > 2 && STOPWORDS.indexOf(t) === -1; });
       var ranked = DATA.map(function(r){ return {r:r, score:scoreCandidate(r, terms)}; })
         .filter(function(x){ return x.score > 0; })
         .sort(function(a,b){ return b.score - a.score; })
         .slice(0, 12);
-      var head = el('div', {class:'dispatch-results-head'}, [
-        el('span', {}, [ranked.length + ' MATCH' + (ranked.length===1?'':'ES')]),
-        el('span', {class:'dispatch-clear', onclick:function(){ input.value=''; resultsEl.innerHTML=''; }}, ['Clear'])
-      ]);
-      resultsEl.appendChild(head);
+      if(note) resultsEl.appendChild(el('div', {class:'section-hint', style:'margin-bottom:10px;'}, [note]));
+      renderResultsHead(ranked.length);
       if(!ranked.length){
         resultsEl.appendChild(el('div', {class:'empty-state'}, ['No close matches. Try fewer or broader terms.']));
         return;
@@ -886,6 +928,45 @@
       resultsEl.appendChild(el('div', {class:'dispatch-results-body'}, [
         el('div', {class:'grid'}, ranked.map(function(x){ return personCard(x.r); }))
       ]));
+    }
+
+    function runSearch(){
+      var q = input.value.trim();
+      resultsEl.innerHTML = '';
+      if(!q){ showToast('Type what you are looking for first.'); return; }
+      resultsEl.appendChild(el('div', {class:'section-hint'}, ['Searching your Rolodex, then checking portfolios for the top candidates — this can take a few seconds…']));
+
+      fetch('/.netlify/functions/smart-search', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + clerkToken, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: q })
+      }).then(function(res){ return res.json(); }).then(function(data){
+        if(data.error || !data.results){
+          runBasicSearch(q.toLowerCase(), 'AI search isn\u2019t available right now (' + (data.error || 'no results returned') + ') — showing basic keyword matches instead.');
+          return;
+        }
+        var byId = {};
+        DATA.forEach(function(r){ byId[String(r.id)] = r; });
+        var matched = data.results.map(function(item){
+          return { r: byId[String(item.id)], reason: item.reason };
+        }).filter(function(x){ return !!x.r; });
+
+        resultsEl.innerHTML = '';
+        renderResultsHead(matched.length);
+        if(!matched.length){
+          resultsEl.appendChild(el('div', {class:'empty-state'}, ['No close matches. Try fewer or broader terms.']));
+          return;
+        }
+        resultsEl.appendChild(el('div', {class:'dispatch-results-body'}, [
+          el('div', {class:'grid'}, matched.map(function(x){
+            var wrapper = el('div', {}, [personCard(x.r)]);
+            if(x.reason) wrapper.appendChild(el('div', {class:'dispatch-reason'}, [x.reason]));
+            return wrapper;
+          }))
+        ]));
+      }).catch(function(err){
+        runBasicSearch(q.toLowerCase(), 'AI search hit an error — showing basic keyword matches instead.');
+      });
     }
 
     input.addEventListener('keydown', function(e){
@@ -905,11 +986,7 @@
   /* ---------------- render: reuse opportunities ---------------- */
   function renderReuseOpportunities(){
     var wrap = el('div', {});
-    wrap.appendChild(el('div', {class:'section-title'}, ['Reuse Opportunities']));
-    wrap.appendChild(el('div', {class:'section-hint'}, [
-      'People already booked with room left in their schedule, and people on hold at one company who could be confirmed elsewhere first. Use this to spot split-booking opportunities across ' +
-      Object.values(COMPANY_FULLNAME).join(', ') + '.'
-    ]));
+    wrap.appendChild(el('div', {class:'section-title'}, ['Cross-Company Opportunities']));
 
     var partial = DATA.filter(function(r){
       return isBooked(r) && r.allocation && r.allocation !== 'High';
@@ -922,7 +999,7 @@
 
     wrap.appendChild(el('div', {style:'font-weight:700; margin:22px 0 4px;'}, ['Partial capacity (' + partial.length + ')']));
     wrap.appendChild(el('div', {class:'section-hint', style:'margin:0 0 14px;'}, [
-      'Currently booked, but not at full allocation — good candidates for a second project.'
+      'Currently booked, but not being utilized at 100% capacity. Use this to spot split-booking opportunities across companies.'
     ]));
     if(!partial.length){
       wrap.appendChild(el('div', {class:'empty-state'}, ['No one is currently marked below full allocation. This fills in as the Project Allocation column gets used in monday.com.']));
@@ -931,6 +1008,7 @@
         var stats = [
           miniStat('Company', COMPANY_FULLNAME[r.company] || r.company || '\u2014'),
           miniStat('Project', r.currentProject || '\u2014'),
+          miniStat('Dates Booked', r.bookedDates ? formatDateRange(r.bookedDates) : '\u2014'),
           miniStat('Allocation', allocationBadge(r.allocation)),
           state.isAdmin ? el('button', {class:'btn', style:'margin-top:6px;', onclick:function(){ state.prefillPerson=r; state.prefillType='booking'; state.tab='request'; render(); }}, ['Suggest for another project']) : null
         ];
@@ -939,9 +1017,9 @@
       wrap.appendChild(partialGrid);
     }
 
-    wrap.appendChild(el('div', {style:'font-weight:700; margin:26px 0 4px;'}, ['On hold, not yet confirmed (' + holdOnly.length + ')']));
+    wrap.appendChild(el('div', {style:'font-weight:700; margin:26px 0 4px;'}, ['On Hold (' + holdOnly.length + ')']));
     wrap.appendChild(el('div', {class:'section-hint', style:'margin:0 0 14px;'}, [
-      'On hold somewhere, but nothing is booked yet — worth checking before another company locks them in.'
+      'On hold but nothing is booked yet. Worth checking if a split booking opportunity is possible across companies.'
     ]));
     if(!holdOnly.length){
       wrap.appendChild(el('div', {class:'empty-state'}, ['No one is currently on hold without a confirmed booking.']));
@@ -1047,41 +1125,48 @@
   function personCard(r){
     var booked = isBooked(r);
     var hasStatus = !!(booked || r.currentHold);
-    var statusColor = booked ? 'var(--c-mudge)' : 'var(--muted)';
+    var statusColor = booked ? 'var(--c-mudge)' : 'var(--amber)';
+    var statusTint = booked ? 'rgba(143,191,107,.1)' : 'rgba(242,201,76,.1)';
     var statusLabel = booked
       ? 'Booked — ' + (COMPANY_FULLNAME[r.company] || r.company) + ' · ' + (r.currentProject || 'Project TBD') + (r.bookedDates ? ' · ' + formatDateRange(r.bookedDates) : '')
       : (r.currentHold ? 'On hold — ' + r.currentHold + (r.holdDates ? ' · ' + formatDateRange(r.holdDates) : '') : '');
     var isFav = state.favorites.indexOf(r.id) !== -1;
     var portfolioUrl = r.portfolio || null;
-    var stamps = [];
-    if(r.trusted) stamps.push(el('span', {class:'stamp stamp-trusted'}, ['Trusted']));
-    if(r.directorRoster) stamps.push(el('span', {class:'stamp stamp-roster'}, ['Director Roster']));
-    var card = el('div', {class:'rcard', style:'--company-color:'+(COMPANY_COLORS[r.company]||'var(--card-line)')+';', onclick:function(){ state.modalPerson = r; render(); }}, [
-      el('div', {class:'rcard-tab'}, []),
-      el('div', {class:'rcard-clip'}, []),
-      stamps.length ? el('div', {class:'stamp-stack'}, stamps) : null,
-      el('div', {class:'card-actions'}, [
-        el('button', {class:'heart-btn' + (isFav?' active':''), title: isFav ? 'Remove from My Favorites' : 'Add to My Favorites',
-          onclick:function(e){ e.stopPropagation(); toggleFavorite(r.id); }
-        }, [isFav ? '♥' : '♡']),
-        el('button', {class:'book-btn', title:'Request to book ' + r.name,
-          onclick:function(e){ e.stopPropagation(); state.prefillPerson = r; state.prefillType = 'booking'; state.tab = 'request'; render(); }
-        }, ['+'])
-      ]),
-      el('div', {class:'rcard-name'}, [r.name]),
-      el('div', {class:'rcard-role'}, [r.role || 'Role not set']),
-      portfolioUrl ? el('div', {class:'rcard-row'}, [el('a', {href:portfolioUrl, target:'_blank', class:'card-link', onclick:function(e){e.stopPropagation();}}, ['Portfolio'])]) : null,
-      r.linkedin ? el('div', {class:'rcard-row'}, [el('a', {href:r.linkedin, target:'_blank', class:'card-link', onclick:function(e){e.stopPropagation();}}, ['Linkedin'])]) : null,
-      el('div', {class:'rcard-body'}, [
-        hasStatus ? el('div', {class:'rcard-row'}, [
+    var badges = [];
+    if(r.trusted) badges.push(el('span', {class:'badge-pill badge-trusted'}, ['Trusted']));
+    if(r.directorRoster) badges.push(el('span', {class:'badge-pill badge-roster'}, ['Director Roster']));
+
+    var infoRows = [];
+    if(r.location) infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Based']), el('span',{},[r.location])]));
+    if(r.email) infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Email']), el('a', {href:'mailto:'+r.email, class:'card-link', onclick:function(e){e.stopPropagation();}}, [r.email])]));
+    if(state.isAdmin && r.rate) infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Rate — admin']), el('span',{},[r.rate + (r.ratePer ? '/'+r.ratePer : '')])]));
+    if(r.allocation) infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Allocation']), allocationBadge(r.allocation)]));
+
+    var card = el('div', {class:'rcard', onclick:function(){ state.modalPerson = r; render(); }}, [
+      el('div', {class:'rcard-spine', style:'--company-color:'+(COMPANY_COLORS[r.company]||'var(--card-line)')+'; background:'+(COMPANY_COLORS[r.company]||'var(--card-line)')+';'}, []),
+      el('div', {class:'rcard-body-wrap'}, [
+        el('div', {class:'rcard-head'}, [
+          el('div', {style:'min-width:0;'}, [
+            el('div', {class:'rcard-name'}, [r.name]),
+            el('div', {class:'rcard-role'}, [r.role || 'Role not set'])
+          ]),
+          el('div', {class:'card-actions'}, [
+            el('button', {class:'heart-btn' + (isFav?' active':''), title: isFav ? 'Remove from My Favorites' : 'Add to My Favorites',
+              onclick:function(e){ e.stopPropagation(); toggleFavorite(r.id); }
+            }, [isFav ? '♥' : '♡']),
+            el('button', {class:'book-btn', title:'Request to book ' + r.name,
+              onclick:function(e){ e.stopPropagation(); state.prefillPerson = r; state.prefillType = 'booking'; state.tab = 'request'; render(); }
+            }, ['+'])
+          ])
+        ]),
+        badges.length ? el('div', {class:'badge-row'}, badges) : null,
+        portfolioUrl ? el('div', {class:'rcard-links'}, [el('a', {href:portfolioUrl, target:'_blank', class:'card-link', onclick:function(e){e.stopPropagation();}}, ['Portfolio'])]) : null,
+        el('div', {class:'rcard-divider'}, []),
+        hasStatus ? el('div', {class:'status-highlight', style:'--status-tint:'+statusTint+';'}, [
           el('span', {class:'status-dot', style:'background:'+statusColor}, []),
-          el('span', {style:'color:var(--chalk); font-weight:600;'}, [statusLabel])
-        ]) : null,
-        r.location ? el('div', {class:'rcard-row'}, [el('b',{},['Based:']), ' ' + r.location]) : null,
-        r.email ? el('div', {class:'rcard-row'}, [el('b',{},['Email:']), ' ', el('a', {href:'mailto:'+r.email, class:'card-link', onclick:function(e){e.stopPropagation();}}, [r.email])]) : null,
-        (state.isAdmin && r.rate) ? el('div', {class:'rcard-row'}, [el('b',{},['Rate:']), ' ' + r.rate + (r.ratePer ? '/'+r.ratePer : '')]) : null,
-        r.allocation ? el('div', {class:'rcard-row', style:'margin-top:8px; align-items:center;'}, [el('b',{},['Allocation:']), ' ', allocationBadge(r.allocation)]) : null
-      ])
+          el('span', {style:'color:'+statusColor+'; font-weight:700; font-size:12.5px; line-height:1.4;'}, [statusLabel])
+        ]) : null
+      ].concat(infoRows))
     ]);
     return card;
   }
@@ -1114,20 +1199,29 @@
   }
 
   function miniStat(label, value){
-    return el('div', {}, [
-      el('span', {class:'board-stat-label'}, [label]),
-      el('span', {class:'board-stat-value'}, [value])
+    return el('div', {class:'info-row'}, [
+      el('span', {class:'info-label'}, [label]),
+      el('span', {}, [value])
     ]);
   }
 
   function boardCard(r, stats){
+    var badges = [];
+    if(r.trusted) badges.push(el('span', {class:'badge-pill badge-trusted'}, ['Trusted']));
+    if(r.directorRoster) badges.push(el('span', {class:'badge-pill badge-roster'}, ['Director Roster']));
     return el('div', {class:'board-card'}, [
-      el('div', {class:'board-card-top'}, [
-        el('div', {class:'board-card-name', onclick:function(){ state.modalPerson=r; render(); }}, [r.name]),
-        heartButtonEl(r)
-      ]),
-      el('div', {class:'board-card-role'}, [r.role || 'Role not set']),
-      el('div', {class:'board-card-stats'}, stats)
+      el('div', {class:'board-card-spine', style:'--company-color:'+(COMPANY_COLORS[r.company]||'var(--card-line)')+';'}, []),
+      el('div', {class:'board-card-body'}, [
+        el('div', {class:'board-card-top'}, [
+          el('div', {class:'rcard-name', style:'cursor:pointer;', onclick:function(){ state.modalPerson=r; render(); }}, [r.name]),
+          heartButtonEl(r)
+        ]),
+        el('div', {class:'rcard-role'}, [r.role || 'Role not set']),
+        badges.length ? el('div', {class:'badge-row'}, badges) : null,
+        r.portfolio ? el('div', {class:'rcard-links'}, [el('a', {href:r.portfolio, target:'_blank', class:'card-link', onclick:function(e){e.stopPropagation();}}, ['Portfolio'])]) : null,
+        el('div', {class:'rcard-divider'}, []),
+        el('div', {class:'board-card-stats'}, stats)
+      ])
     ]);
   }
 
@@ -1264,14 +1358,18 @@
     names.forEach(function(p){
       var companies = Object.keys(map[p]);
       var isCrossCompany = companies.length > 1;
-      var card = el('div', {class:'project-card', onclick:function(){ state.projectDetail = p; state.projectPeopleFilter = 'all'; render(); }}, [
-        isCrossCompany ? el('div', {class:'cross-company-tag'}, ['Cross-Company']) : null,
-        el('div', {class:'project-card-name'}, [p]),
-        el('div', {class:'project-card-chips'},
-          companies.map(function(co){
-            return el('span', {class:'company-pill', style:'background:'+(COMPANY_COLORS[co]||'var(--muted)')}, [COMPANY_FULLNAME[co] || co]);
-          })
-        )
+      var accentColor = isCrossCompany ? 'var(--amber)' : (COMPANY_COLORS[companies[0]] || 'var(--card-line)');
+      var card = el('div', {class:'project-card', style:'--project-accent:'+accentColor+';', onclick:function(){ state.projectDetail = p; state.projectPeopleFilter = 'all'; render(); }}, [
+        el('div', {class:'project-card-spine'}, []),
+        el('div', {class:'project-card-body'}, [
+          isCrossCompany ? el('div', {class:'cross-company-tag'}, ['Cross-Company']) : null,
+          el('div', {class:'project-card-name'}, [p]),
+          el('div', {class:'project-card-chips'},
+            companies.map(function(co){
+              return el('span', {class:'company-pill', style:'background:'+(COMPANY_COLORS[co]||'var(--muted)')}, [COMPANY_FULLNAME[co] || co]);
+            })
+          )
+        ])
       ]);
       grid.appendChild(card);
     });
@@ -1338,14 +1436,17 @@
       bucket.employees.forEach(function(pair){
         var emp = pair.employee, a = pair.allocation;
         cards.push(el('div', {class:'board-card'}, [
-          el('div', {class:'board-card-top'}, [
-            el('div', {class:'board-card-name', onclick:function(){ state.modalEmployee = emp; render(); }}, [emp.name])
-          ]),
-          el('div', {class:'board-card-role'}, [emp.role || 'Role not set']),
-          el('div', {class:'board-card-stats'}, [
-            miniStat('Capacity', a.percentage != null ? a.percentage + '%' : '—'),
-            miniStat('Dates', a.dates || '—'),
-            miniStat('Type', 'Full-Time')
+          el('div', {class:'board-card-spine', style:'--company-color:'+(COMPANY_COLORS[co]||'var(--card-line)')+';'}, []),
+          el('div', {class:'board-card-body'}, [
+            el('div', {class:'board-card-top'}, [
+              el('div', {class:'board-card-name', onclick:function(){ state.modalEmployee = emp; render(); }}, [emp.name])
+            ]),
+            el('div', {class:'board-card-role'}, [emp.role || 'Role not set']),
+            el('div', {class:'board-card-stats'}, [
+              miniStat('Capacity', a.percentage != null ? a.percentage + '%' : '—'),
+              miniStat('Dates', a.dates || '—'),
+              miniStat('Type', 'Full-Time')
+            ])
           ])
         ]));
       });
@@ -1464,9 +1565,7 @@
   function renderCapacity(){
     var wrap = el('div', {});
     wrap.appendChild(el('div', {class:'section-title'}, ['Team Capacity']));
-    wrap.appendChild(el('div', {class:'section-hint'}, [
-      'How full-time employees are allocated across projects. A full bar means someone is at capacity — that\u2019s the cue to bring in freelance support instead of stretching the team thinner. Data comes from the Internal Team roster in Admin.'
-    ]));
+
     var companyFilterField = multiSelectField('Company',
       ['1stAve','SG','Studio PPS','Mudge'].map(function(k){ return COMPANY_FULLNAME[k] || k; }),
       function(){ return state.capacityFilterCompany; },
@@ -1484,12 +1583,12 @@
     container.innerHTML = '';
     var selected = state.capacityFilterCompany;
     var showAll = !selected.length;
-    var emps = state.internalEmployees.filter(function(e){
+    var emps = CAPACITY_DATA.filter(function(e){
       return showAll || selected.indexOf(COMPANY_FULLNAME[e.company] || e.company) !== -1;
     });
     if(!emps.length){
       container.appendChild(el('div', {class:'empty-state'}, [
-        'No internal employees on file for this company yet. Add them from the Admin tab\u2019s Internal Team section.'
+        'No capacity data synced yet. Visit /.netlify/functions/sync-capacity once to pull it in from monday.com, or check back after the next scheduled sync.'
       ]));
       return;
     }
@@ -1501,18 +1600,17 @@
     emps.forEach(function(emp){ container.appendChild(capacityRow(emp)); });
   }
 
-  function capacityRow(emp){
-    var allocations = (emp.allocations || []).filter(function(a){ return a.project; });
-    var total = allocations.reduce(function(s, a){ return s + (a.percentage || 0); }, 0);
-    var statusClass = total >= 100 ? 'red' : (total >= 80 ? 'amber' : 'green');
-    var statusLabel = total >= 100 ? 'At Capacity' : (total >= 80 ? 'Near Capacity' : 'Has Room');
-    var badgeStyle = statusClass === 'red' ? 'background:rgba(224,82,107,.18); color:#f28ea0;'
-      : statusClass === 'amber' ? 'background:rgba(242,201,76,.18); color:var(--amber);'
-      : 'background:rgba(156,211,38,.18); color:var(--c-mudge);';
+  function capacityTotal(allocations, metric){
+    return allocations.reduce(function(s, a){ return s + (a[metric] || 0); }, 0);
+  }
+
+  function capacityChartBlock(emp, allocations, metric, label){
+    var total = capacityTotal(allocations, metric);
+    var metricLabel = metric === 'utilization' ? '% utilized' : '% allocated';
 
     var track = el('div', {class:'capacity-track'}, []);
     allocations.forEach(function(a){
-      var pct = Math.max(0, a.percentage || 0);
+      var pct = Math.max(0, a[metric] || 0);
       if(pct <= 0) return;
       var color = getProjectColor(a.project);
       track.appendChild(el('div', {
@@ -1527,25 +1625,48 @@
     }
 
     var legend = el('div', {class:'capacity-legend'}, allocations.map(function(a){
+      var projectColor = getProjectColor(a.project);
       return el('span', {}, [
-        el('span', {class:'capacity-legend-dot', style:'background:' + getProjectColor(a.project) + ';'}, []),
-        a.project + ' — ' + (a.percentage != null ? a.percentage + '%' : '—') + (a.dates ? ' · ' + a.dates : '')
+        el('span', {class:'capacity-legend-dot', style:'background:' + projectColor + ';'}, []),
+        el('span', {class:'capacity-legend-project', style:'color:' + projectColor + ';'}, [a.project]),
+        ' — ',
+        el('span', {class:'capacity-legend-value'}, [a[metric] != null ? a[metric] + ' ' + metricLabel : '—']),
+        a.dates ? el('span', {class:'capacity-legend-dates'}, [' · ' + a.dates]) : null
       ]);
     }));
 
-    return el('div', {class:'capacity-row'}, [
-      el('div', {class:'capacity-row-head'}, [
-        el('div', {}, [
-          el('div', {class:'capacity-name'}, [emp.name]),
-          el('div', {class:'capacity-role'}, [(emp.role || 'Role not set') + ' · ' + (COMPANY_FULLNAME[emp.company] || emp.company)])
-        ]),
-        el('div', {style:'text-align:right;'}, [
-          el('div', {class:'capacity-pct ' + statusClass}, [total + '%']),
-          el('div', {class:'capacity-badge', style:badgeStyle}, [statusLabel])
-        ])
+    return el('div', {class:'capacity-bar-block'}, [
+      el('div', {class:'capacity-bar-head'}, [
+        el('div', {class:'capacity-bar-label'}, [label]),
+        el('div', {class:'capacity-bar-total'}, [total + '%'])
       ]),
       track,
       legend
+    ]);
+  }
+
+  function capacityRow(emp){
+    var allocations = (emp.allocations || []).filter(function(a){ return a.project; });
+    var allocationTotal = capacityTotal(allocations, 'percentage');
+    var statusClass = allocationTotal >= 100 ? 'red' : (allocationTotal >= 80 ? 'amber' : 'green');
+    var statusLabel = allocationTotal >= 100 ? 'At Capacity' : (allocationTotal >= 80 ? 'Near Capacity' : 'Has Room');
+    var badgeStyle = statusClass === 'red' ? 'background:rgba(224,82,107,.18); color:#f28ea0;'
+      : statusClass === 'amber' ? 'background:rgba(242,201,76,.18); color:var(--amber);'
+      : 'background:rgba(156,211,38,.18); color:var(--c-mudge);';
+
+    return el('div', {class:'capacity-row'}, [
+      el('div', {class:'capacity-row-head'}, [
+        el('div', {class:'capacity-row-who'}, [
+          el('div', {class:'capacity-name'}, [emp.name]),
+          el('div', {class:'capacity-role'}, [(emp.role || 'Role not set') + ' · ' + (COMPANY_FULLNAME[emp.company] || emp.company)])
+        ]),
+        el('div', {class:'capacity-row-status'}, [
+          el('div', {class:'capacity-pct ' + statusClass}, [allocationTotal + '%']),
+          el('div', {class:'capacity-badge', style:badgeStyle}, [statusLabel])
+        ])
+      ]),
+      capacityChartBlock(emp, allocations, 'percentage', 'Billing Allocation'),
+      capacityChartBlock(emp, allocations, 'utilization', 'Project Utilization')
     ]);
   }
 
@@ -1842,7 +1963,8 @@
           var b = badgeMap[t] || ['REQUEST','badge-free'];
           return el('span', {class:'badge ' + b[1]}, [b[0]]);
         });
-        var card = el('div', {class:'req-card'}, [
+        var isHighlighted = state.highlightRequestId && String(req.id) === String(state.highlightRequestId);
+        var card = el('div', {class:'req-card' + (isHighlighted ? ' req-card-highlight' : ''), id:'request-' + req.id}, [
           el('div', {class:'req-top'}, [
             el('div', {}, [
               el('div', {style:'font-weight:700; display:flex; align-items:center; gap:8px; flex-wrap:wrap;'},
@@ -2099,7 +2221,7 @@
     if(state.tab === 'directory') wrap.appendChild(renderDirectory());
     else if(state.tab === 'projects') wrap.appendChild(renderProjects());
     else if(state.tab === 'reuse') wrap.appendChild(renderReuseOpportunities());
-    else if(state.tab === 'capacity') wrap.appendChild(renderCapacity());
+    else if(state.tab === 'capacity') wrap.appendChild(state.isAdmin ? renderCapacity() : el('div', {class:'empty-state'}, ['You need admin access to view Team Capacity. Ask whoever manages the ADMIN_EMAILS_* settings to add your email.']));
     else if(state.tab === 'favorites') wrap.appendChild(renderFavorites());
     else if(state.tab === 'request') wrap.appendChild(renderRequestForm());
     else if(state.tab === 'admin') wrap.appendChild(state.isAdmin ? renderAdmin() : el('div', {class:'empty-state'}, ['You need admin access to view this page. Ask whoever manages the ADMIN_EMAILS_* settings to add your email.']));
@@ -2124,12 +2246,35 @@
               state.profile = profile && (profile.name || profile.email)
                 ? profile
                 : { name: (window.Clerk.user && window.Clerk.user.fullName) || '', email: state.userEmail || '' };
+              applyRequestDeepLink();
               render();
             });
           });
         });
       });
     });
+  }
+
+  // Handles links like yoursite.netlify.app/?requestId=12345 (sent in the
+  // "Talent Request" email alert) by jumping straight to the Admin tab and
+  // scrolling to/highlighting that specific request, instead of just landing
+  // on the homepage and making the person hunt for it.
+  function applyRequestDeepLink(){
+    var params = new URLSearchParams(window.location.search);
+    var requestId = params.get('requestId');
+    if(!requestId) return;
+    if(!state.isAdmin){
+      showToast('That link opens a specific request, but you need admin access to view it.');
+      return;
+    }
+    state.tab = 'admin';
+    state.highlightRequestId = requestId;
+    setTimeout(function(){
+      var el = document.getElementById('request-' + requestId);
+      if(el){
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+      }
+    }, 150);
   }
 
   function fetchFreelancerData(cb){
@@ -2143,10 +2288,25 @@
       .catch(function(){ DATA = []; cb(); });
   }
 
+  function fetchCapacityData(cb){
+    // Only admins can see Team Capacity, and only admins are allowed to call
+    // this endpoint (enforced server-side in get-capacity.mjs too) — skip the
+    // call entirely for everyone else so non-admins never even request it.
+    if(!state.isAdmin){ CAPACITY_DATA = []; cb(); return; }
+    fetch('/.netlify/functions/get-capacity', { headers: { 'Authorization': 'Bearer ' + clerkToken } })
+      .then(function(res){ return res.json(); })
+      .then(function(json){
+        CAPACITY_DATA = json.items || [];
+        capacityDataUpdatedAt = json.updatedAt || null;
+        cb();
+      })
+      .catch(function(){ CAPACITY_DATA = []; cb(); });
+  }
+
   function startApp(){
     document.getElementById('signin-gate').style.display = 'none';
     document.getElementById('root').style.display = '';
-    fetchFreelancerData(loadEverythingAndRender);
+    fetchFreelancerData(function(){ fetchCapacityData(loadEverythingAndRender); });
   }
 
   // --- Clerk boot sequence ---
