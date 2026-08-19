@@ -227,11 +227,11 @@
   .heart-btn-inline.active{color:var(--danger); border-color:var(--danger);}
   .rcard-name{
     font-family:'Space Grotesk',sans-serif; font-size:22.5px; font-weight:700; line-height:1.2;
-    color:var(--chalk); overflow-wrap:break-word;
+    color:var(--chalk); overflow-wrap:break-word; min-height:27px;
   }
   .rcard-role{
     font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:14px; color:var(--amber);
-    margin-top:3px; letter-spacing:0.5px; text-transform:uppercase; line-height:1.4;
+    margin-top:3px; letter-spacing:0.5px; text-transform:uppercase; line-height:1.4; min-height:39px;
   }
   .rcard-links{margin-top:12px; min-height:20px;}
   .rcard-divider{height:1px; background:var(--card-line); margin:14px 0;}
@@ -1176,10 +1176,10 @@
     if(r.directorRoster) badges.push(el('span', {class:'badge-pill badge-roster'}, ['Director Roster']));
 
     var infoRows = [];
-    if(r.location) infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Based']), el('span',{},[r.location])]));
-    if(r.email) infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Email']), el('a', {href:'mailto:'+r.email, class:'card-link', onclick:function(e){e.stopPropagation();}}, [r.email])]));
-    if(state.isAdmin && r.rate) infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Rate — admin']), el('span',{},[r.rate + (r.ratePer ? '/'+r.ratePer : '')])]));
-    if(r.allocation) infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Allocation']), allocationBadge(r.allocation)]));
+    infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Based']), el('span',{},[r.location || '\u2014'])]));
+    infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Email']), r.email ? el('a', {href:'mailto:'+r.email, class:'card-link', onclick:function(e){e.stopPropagation();}}, [r.email]) : el('span',{},['\u2014'])]));
+    if(state.isAdmin) infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Rate — admin']), el('span',{},[r.rate ? (r.rate + (r.ratePer ? '/'+r.ratePer : '')) : '\u2014'])]));
+    infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Allocation']), r.allocation ? allocationBadge(r.allocation) : el('span',{},['\u2014'])]));
 
     var card = el('div', {class:'rcard', onclick:function(){ state.modalPerson = r; render(); }}, [
       el('div', {class:'rcard-spine', style:'--company-color:'+(COMPANY_COLORS[r.company]||'var(--card-line)')+'; background:'+(COMPANY_COLORS[r.company]||'var(--card-line)')+';'}, []),
