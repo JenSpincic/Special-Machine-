@@ -891,7 +891,6 @@
 
     var toolbar = el('div', {class:'toolbar'}, [searchField, companyField, bookedOnlyField, holdOnlyField, rosterOnlyField, clearAllField]);
     wrap.appendChild(toolbar);
-    wrap.appendChild(renderSmartSearch());
     wrap.appendChild(el('div', {id:'results-count', class:'results-count'}, []));
     wrap.appendChild(el('div', {id:'directory-grid', class:'grid'}, []));
     setTimeout(renderDirectoryList, 0);
