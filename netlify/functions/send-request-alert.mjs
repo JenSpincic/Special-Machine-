@@ -1,4 +1,4 @@
-// Sends a "Talent Request" email alert to jen@1stavemachine.com whenever
+// Sends a "Talent Request" email alert to jen@specialguest.co whenever
 // someone submits a booking/availability/rate request through the site.
 // Called by the front end right after it saves the request via data.mjs —
 // this is a separate call so a failed email never blocks the request itself
@@ -11,7 +11,7 @@
 
 import { getAuthedUser } from "./_clerk-auth.mjs";
 
-const ALERT_TO = "jen@1stavemachine.com";
+const ALERT_TO = "jen@specialguest.co";
 const FROM_ADDRESS = "Golden Rolodex <rolodex@resend.dev>"; // swap in a verified domain address once you set one up in Resend
 
 export default async (req) => {

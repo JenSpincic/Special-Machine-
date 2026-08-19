@@ -1,7 +1,11 @@
-// Scheduled function (see netlify.toml) that pulls fresh freelancer data from
-// monday.com's "Golden Rolodex" board and caches it in Netlify Blobs, so the
-// site's front end reads a fast local cache instead of calling monday.com on
-// every page load.
+// Core sync logic for the "Golden Rolodex" board, plus an admin-gated HTTP
+// endpoint (used by the "Sync Now" button in Admin) that runs it on demand.
+//
+// Automatic scheduling now lives in sync-monday-am.mjs and sync-monday-pm.mjs
+// instead of here — see those files for the cron times. This file itself is
+// no longer on a schedule; it only runs when explicitly triggered (by an
+// admin clicking "Sync Now," or by those two scheduled wrapper functions
+// calling runMondaySync() directly).
 //
 // IMPORTANT: I could not test this function against the live monday.com API
 // from within this environment (no network access to monday.com here). The
@@ -9,12 +13,12 @@
 // Claude session, and the parsing approach (using monday's own `text` field,
 // which is already human-formatted per column type) is the simplest path to
 // avoid re-implementing type-specific parsing for every column type. Please
-// do a test run (hit this function's URL directly, or wait for the first
-// scheduled run) and compare the output against the live board before fully
+// do a test run and compare the output against the live board before fully
 // trusting it — some column IDs or the pagination shape may need small
 // adjustments if monday.com's API has changed since.
 
 import { getStore } from "@netlify/blobs";
+import { getAuthedUser } from "./_clerk-auth.mjs";
 
 const BOARD_ID = "7936095861";
 
@@ -167,24 +171,38 @@ async function fetchAllItems(token) {
   return items;
 }
 
-export default async (req) => {
+export async function runMondaySync() {
   const token = process.env.MONDAY_API_TOKEN;
   if (!token) {
-    return new Response(JSON.stringify({ error: "Missing MONDAY_API_TOKEN environment variable" }), { status: 500 });
+    throw new Error("Missing MONDAY_API_TOKEN environment variable");
+  }
+
+  const rawItems = await fetchAllItems(token);
+  const cleaned = rawItems.map(cleanItem);
+
+  const store = getStore("freelancer-data");
+  const updatedAt = new Date().toISOString();
+  await store.setJSON("latest", {
+    updatedAt,
+    count: cleaned.length,
+    items: cleaned,
+  });
+
+  return { synced: cleaned.length, updatedAt };
+}
+
+// Admin-only manual trigger — this is what the "Sync Now" button in Admin
+// calls. Requires a signed-in admin's Clerk token in the Authorization
+// header, same as the other admin-only endpoints.
+export default async (req) => {
+  const user = await getAuthedUser(req);
+  if (!user || !user.isAdmin) {
+    return new Response(JSON.stringify({ error: "Admin access required" }), { status: 403 });
   }
 
   try {
-    const rawItems = await fetchAllItems(token);
-    const cleaned = rawItems.map(cleanItem);
-
-    const store = getStore("freelancer-data");
-    await store.setJSON("latest", {
-      updatedAt: new Date().toISOString(),
-      count: cleaned.length,
-      items: cleaned,
-    });
-
-    return new Response(JSON.stringify({ synced: cleaned.length, updatedAt: new Date().toISOString() }), {
+    const result = await runMondaySync();
+    return new Response(JSON.stringify(result), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -192,5 +210,3 @@ export default async (req) => {
     return new Response(JSON.stringify({ error: String(err) }), { status: 500 });
   }
 };
-
-export const config = { schedule: "0 */6 * * *" };

@@ -1,7 +1,7 @@
-// Scheduled function that pulls Team Capacity data from the
-// "SG Resourcing Allocation + Utilization" monday.com board (a different
-// board from the Golden Rolodex) and caches it in Netlify Blobs, same
-// pattern as sync-monday.mjs.
+// Core sync logic for the "SG Resourcing Allocation + Utilization" board,
+// plus an admin-gated HTTP endpoint (used by the "Sync Now" button in Admin)
+// that runs it on demand. Automatic scheduling lives in sync-capacity-am.mjs
+// and sync-capacity-pm.mjs instead of here.
 //
 // This board is structured as one row per person-per-project assignment
 // (not one row per person), grouped by project. This function groups those
@@ -16,11 +16,11 @@
 // which column maps to which field below.
 //
 // IMPORTANT: I could not test this function against the live monday.com API
-// from within this environment. Please do a test run (hit this function's
-// URL directly) and compare the output against the live board before fully
-// trusting it.
+// from within this environment. Please do a test run and compare the output
+// against the live board before fully trusting it.
 
 import { getStore } from "@netlify/blobs";
+import { getAuthedUser } from "./_clerk-auth.mjs";
 
 const BOARD_ID = "18424352592";
 
@@ -151,24 +151,37 @@ function groupByPerson(rawItems) {
   return Object.values(byId);
 }
 
-export default async (req) => {
+export async function runCapacitySync() {
   const token = process.env.MONDAY_API_TOKEN;
   if (!token) {
-    return new Response(JSON.stringify({ error: "Missing MONDAY_API_TOKEN environment variable" }), { status: 500 });
+    throw new Error("Missing MONDAY_API_TOKEN environment variable");
+  }
+
+  const rawItems = await fetchAllItems(token);
+  const people = groupByPerson(rawItems);
+
+  const store = getStore("capacity-data");
+  const updatedAt = new Date().toISOString();
+  await store.setJSON("latest", {
+    updatedAt,
+    count: people.length,
+    items: people,
+  });
+
+  return { synced: people.length, updatedAt };
+}
+
+// Admin-only manual trigger — this is what the "Sync Now" button in Admin
+// calls.
+export default async (req) => {
+  const user = await getAuthedUser(req);
+  if (!user || !user.isAdmin) {
+    return new Response(JSON.stringify({ error: "Admin access required" }), { status: 403 });
   }
 
   try {
-    const rawItems = await fetchAllItems(token);
-    const people = groupByPerson(rawItems);
-
-    const store = getStore("capacity-data");
-    await store.setJSON("latest", {
-      updatedAt: new Date().toISOString(),
-      count: people.length,
-      items: people,
-    });
-
-    return new Response(JSON.stringify({ synced: people.length, updatedAt: new Date().toISOString() }), {
+    const result = await runCapacitySync();
+    return new Response(JSON.stringify(result), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
