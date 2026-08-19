@@ -175,7 +175,7 @@
   .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px; align-items:stretch;}
   .rcard{
     display:flex; background:var(--card); border:1px solid var(--card-line); border-radius:6px;
-    overflow:visible; cursor:pointer; height:100%; position:relative;
+    overflow:visible; cursor:pointer; height:100%; min-height:390px; position:relative;
     transition:border-color .15s, transform .16s, box-shadow .18s;
   }
   .rcard:hover{
@@ -184,9 +184,9 @@
     box-shadow:0 14px 32px rgba(0,0,0,.45);
   }
   .rcard-spine{width:6px; flex-shrink:0; background:var(--company-color, var(--card-line)); border-radius:6px 0 0 6px;}
-  .rcard-body-wrap{padding:20px 20px 20px 18px; flex:1; min-width:0;}
+  .rcard-body-wrap{padding:18px 18px 16px 16px; flex:1; min-width:0; display:flex; flex-direction:column;}
   .rcard-head{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
-  .badge-row{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; min-height:26px;}
+  .badge-row{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; min-height:20px;}
   .badge-pill{
     display:inline-flex; align-items:center; gap:5px;
     font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600; letter-spacing:0.4px;
@@ -232,10 +232,11 @@
   .rcard-role{
     font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:14px; color:var(--amber);
     margin-top:3px; letter-spacing:0.5px; text-transform:uppercase; line-height:1.4; min-height:39px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
   }
-  .rcard-links{margin-top:12px; min-height:20px;}
-  .rcard-divider{height:1px; background:var(--card-line); margin:14px 0;}
-  .info-row{font-size:15px; color:var(--chalk); display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-top:8px;}
+  .rcard-links{margin-top:8px; min-height:16px;}
+  .rcard-divider{height:1px; background:var(--card-line); margin:10px 0;}
+  .info-row{font-size:15px; color:var(--chalk); display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-top:6px;}
   .info-label{
     font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600; color:var(--muted); text-transform:uppercase;
     letter-spacing:0.4px; flex-shrink:0;
@@ -243,10 +244,17 @@
   .card-link{color:#6db8f2; text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:15px; font-weight:700; word-break:break-all; text-align:right;}
   .card-link:hover{color:#96cdff;}
   .status-highlight{
-    display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:5px;
+    display:flex; align-items:center; gap:8px; padding:5px 9px; border-radius:5px;
     background:var(--status-tint, rgba(255,255,255,.03)); margin-top:2px;
   }
   .status-dot{width:7px;height:7px;border-radius:50%; display:inline-block; flex-shrink:0;}
+  .status-block-v2{margin:2px 0 4px;}
+  .status-tag{
+    display:inline-block; font-family:'Oswald',sans-serif; font-weight:700; text-transform:uppercase;
+    font-size:12px; letter-spacing:0.6px; padding:2px 10px; border-radius:3px; border:1.5px solid currentColor;
+    margin-bottom:6px;
+  }
+  .status-fields{display:flex; flex-direction:column; gap:0;}
   .status-block{margin-bottom:10px;}
   .status-block-head{display:flex; align-items:center; gap:6px; margin-bottom:4px;}
   .status-block-head .status-dot{margin-top:0;}
@@ -1163,24 +1171,30 @@
 
   function personCard(r){
     var booked = isBooked(r);
-    var hasActiveStatus = !!(booked || r.currentHold);
-    var statusColor = booked ? 'var(--c-mudge)' : (r.currentHold ? 'var(--amber)' : 'var(--muted)');
-    var statusTint = booked ? 'rgba(143,191,107,.1)' : (r.currentHold ? 'rgba(242,201,76,.1)' : 'rgba(255,255,255,.03)');
-    var statusLabel = booked
-      ? 'Booked — ' + (COMPANY_FULLNAME[r.company] || r.company) + ' · ' + (r.currentProject || 'Project TBD') + (r.bookedDates ? ' · ' + formatDateRange(r.bookedDates) : '')
-      : (r.currentHold ? 'On hold — ' + r.currentHold + (r.holdDates ? ' · ' + formatDateRange(r.holdDates) : '') : 'Available — not currently booked');
+    var onHold = !booked && !!r.currentHold;
     var isFav = state.favorites.indexOf(r.id) !== -1;
     var portfolioUrl = r.portfolio || null;
     var badges = [];
     if(r.trusted) badges.push(el('span', {class:'badge-pill badge-trusted'}, ['Trusted']));
     if(r.directorRoster) badges.push(el('span', {class:'badge-pill badge-roster'}, ['Director Roster']));
 
-    var infoRows = [];
-    infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Based']), el('span',{},[r.location || '\u2014'])]));
-    infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Email']), r.email ? el('a', {href:'mailto:'+r.email, class:'card-link', onclick:function(e){e.stopPropagation();}}, [r.email]) : el('span',{},['\u2014'])]));
-    if(state.isAdmin) infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Rate — admin']), el('span',{},[r.rate ? (r.rate + (r.ratePer ? '/'+r.ratePer : '')) : '\u2014'])]));
-    infoRows.push(el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Allocation']), r.allocation ? allocationBadge(r.allocation) : el('span',{},['\u2014'])]));
+    var statusBlock = null;
+    if(booked || onHold){
+      var tagColor = booked ? 'var(--c-mudge)' : 'var(--amber)';
+      var tagLabel = booked ? 'Booked' : 'Hold';
+      var projectVal = booked ? (r.currentProject || '\u2014') : (r.currentHold || '\u2014');
+      var datesVal = booked ? r.bookedDates : r.holdDates;
+      statusBlock = el('div', {class:'status-block-v2'}, [
+        el('span', {class:'status-tag', style:'color:'+tagColor+'; border-color:'+tagColor+';'}, [tagLabel]),
+        el('div', {class:'status-fields'}, [
+          el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Company']), el('span',{},[COMPANY_FULLNAME[r.company] || r.company || '\u2014'])]),
+          el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Project']), el('span',{},[projectVal])]),
+          el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Dates']), el('span',{},[datesVal ? formatDateRange(datesVal) : '\u2014'])])
+        ])
+      ]);
+    }
 
+    
     var card = el('div', {class:'rcard', onclick:function(){ state.modalPerson = r; render(); }}, [
       el('div', {class:'rcard-spine', style:'--company-color:'+(COMPANY_COLORS[r.company]||'var(--card-line)')+'; background:'+(COMPANY_COLORS[r.company]||'var(--card-line)')+';'}, []),
       el('div', {class:'rcard-body-wrap'}, [
@@ -1201,11 +1215,12 @@
         el('div', {class:'badge-row'}, badges),
         el('div', {class:'rcard-links'}, [portfolioUrl ? el('a', {href:portfolioUrl, target:'_blank', class:'card-link', onclick:function(e){e.stopPropagation();}}, ['Portfolio']) : null]),
         el('div', {class:'rcard-divider'}, []),
-        el('div', {class:'status-highlight', style:'--status-tint:'+statusTint+';'}, [
-          el('span', {class:'status-dot', style:'background:'+statusColor}, []),
-          el('span', {style:'color:'+statusColor+'; font-weight:700; font-size:15px; line-height:1.4;'}, [statusLabel])
-        ])
-      ].concat(infoRows))
+        el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Based']), el('span',{},[r.location || '\u2014'])]),
+        el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Email']), r.email ? el('a', {href:'mailto:'+r.email, class:'card-link', onclick:function(e){e.stopPropagation();}}, [r.email]) : el('span',{},['\u2014'])]),
+        state.isAdmin ? el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Rate — admin']), el('span',{},[r.rate ? (r.rate + (r.ratePer ? '/'+r.ratePer : '')) : '\u2014'])]) : null,
+        statusBlock,
+        r.allocation ? el('div', {class:'info-row'}, [el('span',{class:'info-label'},['Allocation']), allocationBadge(r.allocation)]) : null
+      ])
     ]);
     return card;
   }
